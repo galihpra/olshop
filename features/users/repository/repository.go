@@ -51,6 +51,7 @@ func (repo *userRepository) Login(email string) (*users.User, error) {
 	var result = new(users.User)
 	result.Id = data.Id
 	result.Name = data.Name
+	result.Password = data.Password
 	result.Username = data.Username
 	result.Email = data.Email
 

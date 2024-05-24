@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"olshop/config"
+	ur "olshop/features/users/repository"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,7 +20,7 @@ func MysqlInit(cfg config.DatabaseMysql) (*gorm.DB, error) {
 
 func MysqlMigrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
-	// your repositories here
+		&ur.User{},
 	)
 
 	if err != nil {
