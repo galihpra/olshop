@@ -14,13 +14,19 @@ type Product struct {
 	Price     float64
 	Thumbnail Image
 
-	Images []Image
+	Images   []Image
+	Category Category
 }
 
 type Image struct {
 	ID       uint
 	ImageURL string
 	ImageRaw io.Reader
+}
+
+type Category struct {
+	ID       uint
+	Category string
 }
 
 type Handler interface {
