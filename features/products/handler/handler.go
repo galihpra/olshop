@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"olshop/config"
 	"olshop/features/products"
 	"strings"
 
@@ -10,14 +9,12 @@ import (
 )
 
 type productHandler struct {
-	service   products.Service
-	jwtConfig config.JWT
+	service products.Service
 }
 
-func NewProductHandler(service products.Service, jwtConfig config.JWT) products.Handler {
+func NewProductHandler(service products.Service) products.Handler {
 	return &productHandler{
-		service:   service,
-		jwtConfig: jwtConfig,
+		service: service,
 	}
 }
 
