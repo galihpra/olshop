@@ -48,6 +48,7 @@ func (hdl *productHandler) Create() echo.HandlerFunc {
 		var parseInput = new(products.Product)
 		parseInput.Name = request.Name
 		parseInput.Price = request.Price
+		parseInput.Category.ID = request.CategoryId
 
 		// Handle file uploads
 		if form, err := c.MultipartForm(); err == nil {
