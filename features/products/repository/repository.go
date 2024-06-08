@@ -17,8 +17,8 @@ type Product struct {
 
 	Images []Image `gorm:"many2many:product_images;"`
 
-	CategoryId uint
-	Category   Category
+	CategoryId uint     `gorm:"column:category_id"`
+	Category   Category `gorm:"foreignKey:CategoryId;references:Id"`
 }
 
 type Image struct {
@@ -28,8 +28,8 @@ type Image struct {
 }
 
 type Category struct {
-	Id       uint
-	Category string
+	Id       uint   `gorm:"column:id; primaryKey;"`
+	Category string `gorm:"column:category; type:varchar(200);"`
 }
 
 type productRepository struct {
