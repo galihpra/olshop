@@ -287,7 +287,98 @@ paths:
         "405":
           $ref: "#/components/responses/405"
         "500":
-          $ref: "#/components/responses/500" 
+          $ref: "#/components/responses/500"
+
+  /carts/{id}:
+    put:
+      tags:
+        - Cart
+      summary: "Update cart"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/cartId"
+      requestBody:
+        $ref: "#/components/requestBodies/cartUpdate"
+      responses:
+        "201":
+          $ref: "#/components/responses/cartUpdate_200"
+        "400":
+          $ref: "#/components/responses/cart_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/cart_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - Cart
+      summary: "Delete cart"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/cartId"
+      responses:
+        "200":
+          $ref: "#/components/responses/cartDelete_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/cart_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/cartDelete_409"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /transactions:
+    post:
+      summary: Create transactions
+      description: Create transactions from cart
+      tags:
+        - Transaction
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/transactionCreate"
+      responses:
+        "201":
+          $ref: "#/components/responses/transactionCreate_201"
+        "400":
+          $ref: "#/components/responses/transactionCreate_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      summary: Get transaction data
+      description: get all transaction data by user
+      tags:
+        - Transaction
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/paginationStart"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/transactionGetAll_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
           
 components:
   schemas:
@@ -831,7 +922,8 @@ components:
                     color: "Red"
                   },
                   qty: 2,
-                  subtotal: 240000
+                  subtotal: 240000,
+                  cart_id: 1
                 },
                 {
                   product: {
@@ -843,7 +935,107 @@ components:
                     color: "Red"
                   },
                   qty: 1,
-                  subtotal: 60000
+                  subtotal: 60000,
+                  cart_id: 2
+                }
+              ]
+    "cartUpdate_200":
+      description: "update cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "update cart success"
+    "cart_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "empty quantity":
+              value:
+                message: "quantity can't be empty"
+    "cartDelete_200":
+      description: "delete cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "delete cart success"
+    "cart_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "cart not found":
+              value:
+                message: "cart not found"
+    "cartDelete_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "cart in use":
+              value:
+                message: "cart used by other resources"
+
+    "transactionCreate_201":
+      description: "create transaction success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "create transaction success"
+    "transactionCreate_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "invalid text":
+              value:
+                message: "please fill text correctly"
+            "invalid rating":
+              value:
+                message: "please fill rating correctly"
+    "transactionGetAll_200":
+      description: "get all transaction success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get all transaction success"
+            pagination:
+              prev: 
+              next: "/transactions?limit=5&start=6"
+            data: 
+              [
+                {
+                  transaction_id: 1,
+                  total: 300000
+                },
+                {
+                  transaction_id: 2,
+                  total: 450000
                 }
               ]
               
@@ -887,6 +1079,14 @@ components:
       schema:
         type: integer
         example: 0
+    
+    cartId:
+      name: "id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
                 
   requestBodies:
     login:
@@ -1052,6 +1252,74 @@ components:
               qty:
                 type: integer
                 example: 1
+    cartUpdate:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "qty"
+            properties:
+              qty:
+                type: integer
+                example: 3
+
+    transactionCreate:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "id_user"
+              - "total"
+              - "first_name"
+              - "last_name"
+              - "phone"
+              - "email"
+              - "street_address"
+              - "country"
+              - "city"
+              - "state"
+              - "zip_code"
+              - "payment_method"
+            properties:
+              id_user:
+                type: integer 
+                example: 1
+              total:
+                type: number 
+                format: currency
+                example: 300000
+              first_name:
+                type: string
+                example: "Galih"
+              last_name:
+                type: string
+                example: "Prayoga"
+              phone:
+                type: string
+                example: "08123456789"
+              email:
+                type: string
+                example: "galihp83@gmail.com"
+              street_address:
+                type: string
+                example: "Jl. Sudirman, No. 46"
+              country:
+                type: string
+                example: "Indonesia"
+              city:
+                type: string
+                example: "Wonogiri"
+              state:
+                type: string
+                example: "Jawa Tengah"
+              zip_code:
+                type: string
+                example: "57683"
+              payment_method:
+                type: string
+                example: BCA
                 
   securitySchemes:
     JWT:
