@@ -1,0 +1,1328 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/GALIHP83/e-commerce/1.0.0
+info:
+  description: This is a API spec for online shop
+  version: "1.0.0"
+  title: Online Shop App
+  contact:
+    email: galihp83@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: "Login"
+      requestBody:
+        $ref: "#/components/requestBodies/login"
+      responses:
+        "200":
+          $ref: "#/components/responses/login_200"
+        "400":
+          $ref: "#/components/responses/login_400"
+        "404":
+          $ref: "#/components/responses/login_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: "Register"
+      requestBody:
+        $ref: "#/components/requestBodies/register"
+      responses:
+        "201":
+          $ref: "#/components/responses/register_201"
+        "400":
+          $ref: "#/components/responses/register_400"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/register_409"
+        "500":
+          $ref: "#/components/responses/500"
+          
+  /users:
+    patch:
+      tags:
+        - "User"
+      summary: "Update User"
+      requestBody:
+        $ref: "#/components/requestBodies/updateUser"
+      security:
+        - JWT: []
+      responses:
+        "200":
+          $ref: "#/components/responses/userUpdate_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/userUpdateDelete_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/userUpdate_409"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - "User"
+      summary: "Delete User"
+      security:
+        - JWT: []
+      responses:
+        "200":
+          $ref: "#/components/responses/userDelete_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/userUpdateDelete_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+          
+  /users/{user_id}:
+    get:
+      tags:
+        - "User"
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: number
+            example: 1
+          required: true
+      summary: "Profile User"
+      security:
+        - JWT: []
+      responses:
+        "200":
+          $ref: "#/components/responses/userProfile_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+          
+  /products:
+    post:
+      tags:
+        - Product
+      summary: "Insert new product"
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/product"
+      responses:
+        "201":
+          $ref: "#/components/responses/product_201"
+        "400":
+          $ref: "#/components/responses/product_400"
+        "404":
+          $ref: "#/components/responses/404"
+        "401":
+          $ref: "#/components/responses/401"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/product_409"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - Product
+      summary: "Get all product"
+      parameters:
+        - $ref: "#/components/parameters/productSearch"
+        - $ref: "#/components/parameters/productCategory"
+        - $ref: "#/components/parameters/paginationStart"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/productGetAll_200"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+  /products/{id}:
+    get:
+      tags:
+        - Product
+      summary: "Get product detail"
+      parameters:
+        - $ref: "#/components/parameters/productId"
+      responses:
+        "200":
+          $ref: "#/components/responses/productGetDetail_200"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    put:
+      tags:
+        - Product
+      summary: "Update Product"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/productId"
+      requestBody:
+        $ref: "#/components/requestBodies/product"
+      responses:
+        "200":
+          $ref: "#/components/responses/productUpdate_200"
+        "400":
+          $ref: "#/components/responses/productCreateUpdate_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/product_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/productCreateUpdate_409"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - Product
+      summary: "Delete Product"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/productId"
+      responses:
+        "200":
+          $ref: "#/components/responses/productDelete_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/product_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/productDelete_409"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /reviews:
+    post:
+      tags:
+        - Review
+      summary: "Create Review"
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/createReview"
+      responses:
+        "201":
+          $ref: "#/components/responses/reviewCreate_201"
+        "400":
+          $ref: "#/components/responses/reviewCreate_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /carts:
+    post:
+      tags:
+        - Cart
+      summary: "Add product to Cart"
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/cart"
+      responses:
+        "201":
+          $ref: "#/components/responses/cart_201"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - Cart
+      summary: "Get cart by user id"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/productSearch"
+        - $ref: "#/components/parameters/paginationStart"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/cartGetAll_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /carts/{id}:
+    put:
+      tags:
+        - Cart
+      summary: "Update cart"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/cartId"
+      requestBody:
+        $ref: "#/components/requestBodies/cartUpdate"
+      responses:
+        "201":
+          $ref: "#/components/responses/cartUpdate_200"
+        "400":
+          $ref: "#/components/responses/cart_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/cart_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - Cart
+      summary: "Delete cart"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/cartId"
+      responses:
+        "200":
+          $ref: "#/components/responses/cartDelete_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/cart_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/cartDelete_409"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /transactions:
+    post:
+      summary: Create transactions
+      description: Create transactions from cart
+      tags:
+        - Transaction
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/transactionCreate"
+      responses:
+        "201":
+          $ref: "#/components/responses/transactionCreate_201"
+        "400":
+          $ref: "#/components/responses/transactionCreate_400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      summary: Get transaction data
+      description: get all transaction data by user
+      tags:
+        - Transaction
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/paginationStart"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          $ref: "#/components/responses/transactionGetAll_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+          
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+        image:
+          type: string
+          format: binary
+        token:
+          type: string
+          
+    product:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: currency
+        stock:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+        thumbnail:
+          type: string
+          format: binary
+        user:
+          $ref: "#/components/schemas/user"
+    
+    apiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          nullable: true
+        pagination:
+          type: object
+          nullable: true
+        data:
+          oneOf:
+            - type: array
+              items:
+                type: object
+                nullable: true
+                oneOf:
+                  - $ref: "#/components/schemas/user"
+                  - $ref: "#/components/schemas/product"
+            - type: object
+              nullable: true
+              oneOf:
+                - $ref: "#/components/schemas/user"
+                - $ref: "#/components/schemas/product"
+  
+  responses:
+    "400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "bad request"
+    "401":
+      description: "unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "unauthorized":
+              value:
+                message: "please login before access it"
+            "incorrect token":
+              value:
+                message: "missing or malformed jwt"
+    "404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "not found"
+    "405":
+      description: "method not allowed"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "method not allowed"
+    "409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "conflict"
+    "500":
+      description: "internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "internal server error"
+
+    "login_200":
+      description: "login success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "login success"
+            data:
+              user_id: 1
+              name: "Galih Prayoga"
+              image: "https://placehold.co/400x400/webp"
+              role: "admin"
+              token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    "login_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "no input":
+              value:
+                message: "please fill input correctly"
+            "invalid email":
+              value:
+                message: "please fill email correctly"
+            "invalid password":
+              value:
+                message: "please fill password correctly"
+    "login_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "user not found":
+              value:
+                message: "user not found"
+            "wrong password":
+              value:
+                message: "wrong password"
+
+    "register_201":
+      description: "register success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "register success"
+    "register_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "no input":
+              value:
+                message: "please fill input correctly"
+            "invalid name":
+              value:
+                message: "please fill name correctly"
+            "invalid username":
+              value:
+                message: "please fill username correctly"
+            "invalid email":
+              value:
+                message: "please fill email correctly"
+            "invalid password":
+              value:
+                message: "please fill password correctly"
+    "register_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "email in use":
+              value:
+                message: "email is already in use"
+                
+    "userProfile_200":
+      description: "get profile user success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get profile user success"
+            data: 
+              user_id: 1
+              name: "Galih Prayoga"
+              username: "galih123"
+              email: "galih@gmail.com"
+              image: "https://placehold.co/400x400/webp"              
+    "userUpdate_200":
+      description: "update user success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "update user success"
+    "userUpdate_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "email in use":
+              value:
+                message: "email is already in use"
+    "userDelete_200":
+      description: "delete user success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "delete user success"
+    "userUpdateDelete_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "user not found":
+              value:
+                message: "user not found"
+                
+    "product_201":
+      description: "create product success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "create product success"
+    "product_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "no input":
+              value:
+                message: "please fill input correctly"
+            "invalid name":
+              value:
+                message: "please fill name correctly"
+            "invalid price":
+              value:
+                message: "please fill price correctly"
+            "invalid stock":
+              value:
+                message: "please fill stock correctly"
+            "invalid condition":
+              value:
+                message: "please fill condition correctly"
+            "invalid description":
+              value:
+                message: "please fill description correctly"
+    "product_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "duplicate product":
+              value:
+                message: "the product is already in the database"
+    "productGetAll_200":
+      description: "get all product success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get all product success"
+            pagination:
+              prev: 
+              next: "/products?limit=5&start=6&sort=price&dir=0&keyword=logitech&category=keyboard"
+            data: [
+              {
+                product_id: 1,
+                name: "Logitech K120",
+                price: 120000,
+                thumbnail: "https://placehold.co/400x400/webp",
+                rating: 4.8,
+                discount: 50
+              },
+              {
+                product_id: 2,
+                name: "Logitech K120",
+                price: 120000,
+                thumbnail: "https://placehold.co/400x400/webp",
+                rating: 4.8,
+                discount: 50
+              },
+              {
+                product_id: 3,
+                name: "Logitech K120",
+                price: 120000,
+                thumbnail: "https://placehold.co/400x400/webp",
+                rating: 4.8,
+                discount: 50
+              },
+              {
+                product_id: 4,
+                name: "Logitech K120",
+                price: 120000,
+                thumbnail: "https://placehold.co/400x400/webp",
+                rating: 4.8,
+                discount: 50
+              },
+              {
+                product_id: 5,
+                name: "Logitech K120",
+                price: 120000,
+                thumbnail: "https://placehold.co/400x400/webp",
+                rating: 4.8,
+                discount: 50
+              },
+            ]
+    "productGetDetail_200":
+      description: "get detail product success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get detail product success"
+            data: 
+              product_id: 1
+              name: "Logitech K120"
+              price: 120000
+              rating: 4.8
+              discount: 50
+              discount_end: "2024-07-05T06:57:29.370Z"
+              measurement: "17 x 20"
+              description: "This is new mechanical keyboard model."
+              picture: [
+                "https://placehold.co/600x400/webp",
+                "https://placehold.co/400x400/webp",
+                "https://placehold.co/800x400/webp",
+              ]
+              varian: {
+                color: "Red",
+                image: "https://placehold.co/200x200/webp",
+                stock: 10
+              }
+              reviews: [
+                {
+                  user: {
+                    user_id: 1,
+                    fullname: "Galih Prayoga",
+                    image: "https://placehold.co/400x400/webp"
+                  },
+                  rating: 4,
+                  text: "best product",
+                  created_at: "2023-12-05T06:57:29.370Z"
+                },
+                {
+                  user: {
+                    user_id: 1,
+                    fullname: "Galih Prayoga",
+                    image: "https://placehold.co/400x400/webp"
+                  },
+                  rating: 5,
+                  text: "good",
+                  created_at: "2023-12-05T06:57:29.370Z"
+                }
+              ]
+              
+    "productUpdate_200":
+      description: "update product success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "update product success"
+    "productCreateUpdate_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "empty name":
+              value:
+                message: "name can't be empty"
+    "productDelete_200":
+      description: "delete product success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "delete product success"
+    "productCreateUpdate_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "name in use":
+              value:
+                message: "product name already exist"
+    "product_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "product not found":
+              value:
+                message: "product not found"
+    "productDelete_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "product in use":
+              value:
+                message: "product used by other resources"
+
+    "reviewCreate_201":
+      description: "create review success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "create review success"
+    "reviewCreate_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "invalid text":
+              value:
+                message: "please fill text correctly"
+            "invalid rating":
+              value:
+                message: "please fill rating correctly"
+              
+    "cart_201":
+      description: "add to cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "product added to cart"
+    "cartGetAll_200":
+      description: "get all cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get all cart success"
+            pagination:
+              prev: 
+              next: "/carts?limit=5&start=6&keyword=logitech"
+            data: 
+              total: 300000
+              items: [
+                {
+                  product: {
+                    name: "Keyboard Logitech K120",
+                    thumbnail: "https://placehold.co/200x200/webp",
+                    price: 120000,
+                  },
+                  varian: {
+                    color: "Red"
+                  },
+                  qty: 2,
+                  subtotal: 240000,
+                  cart_id: 1
+                },
+                {
+                  product: {
+                    name: "Mouse Logitech M90",
+                    thumbnail: "https://placehold.co/200x200/webp",
+                    price: 60000,
+                  },
+                  varian: {
+                    color: "Red"
+                  },
+                  qty: 1,
+                  subtotal: 60000,
+                  cart_id: 2
+                }
+              ]
+    "cartUpdate_200":
+      description: "update cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "update cart success"
+    "cart_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "empty quantity":
+              value:
+                message: "quantity can't be empty"
+    "cartDelete_200":
+      description: "delete cart success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "delete cart success"
+    "cart_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "cart not found":
+              value:
+                message: "cart not found"
+    "cartDelete_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "cart in use":
+              value:
+                message: "cart used by other resources"
+
+    "transactionCreate_201":
+      description: "create transaction success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "create transaction success"
+    "transactionCreate_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "invalid text":
+              value:
+                message: "please fill text correctly"
+            "invalid rating":
+              value:
+                message: "please fill rating correctly"
+    "transactionGetAll_200":
+      description: "get all transaction success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get all transaction success"
+            pagination:
+              prev: 
+              next: "/transactions?limit=5&start=6"
+            data: 
+              [
+                {
+                  transaction_id: 1,
+                  total: 300000
+                },
+                {
+                  transaction_id: 2,
+                  total: 450000
+                }
+              ]
+              
+  parameters:
+    productId:
+      name: "id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+    productSearch:
+      name: "keyword"
+      description: "search keyword by product name"
+      in: query
+      required: false
+      schema:
+        type: string
+        example: "logitech"
+    productCategory:
+      name: "category"
+      description: "search keyword by product category"
+      in: query
+      required: false
+      schema:
+        type: string
+        example: "keyboard"
+    paginationStart:
+      name: "start"
+      description: "pagination start"
+      in: query
+      required: false
+      schema:
+        type: integer
+        example: 0
+    paginationLimit:
+      name: "limit"
+      description: "pagination limit"
+      in: query
+      required: false
+      schema:
+        type: integer
+        example: 0
+    
+    cartId:
+      name: "id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+                
+  requestBodies:
+    login:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "email"
+              - "password"
+            properties:
+              email:
+                type: string 
+                example: "galih@gmail.com"
+              password:
+                type: string
+                example: "galih123"
+    register:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "name"
+              - "username"
+              - "email"
+              - "password"
+            properties:
+              name:
+                type: string 
+                example: "Galih Prayoga"
+              username:
+                type: string 
+                example: "galih123"
+              email:
+                type: string 
+                example: "galih@gmail.com"
+              password:
+                type: string
+                example: "galih123"
+    updateUser:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string 
+                example: "Galih Prayoga"
+              username:
+                type: string 
+                example: "galih123"
+              email:
+                type: string 
+                example: "galih@gmail.com"
+              password:
+                type: string
+                example: "galih123"
+              image:
+                type: string
+                format: binary
+                
+    product:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - "name"
+              - "price"
+              - "stock"
+              - "description"
+              - "images"
+              - "category_id"
+              - "discount"
+              - "discount_end"
+              - "measurement"
+            properties:
+              name:
+                type: string 
+                example: "Logitech K-120"
+              price:
+                type: number 
+                example: 300000
+              stock:
+                type: integer
+                example: 10
+              description:
+                type: string
+                example: "This is new mechanical keyboard model."
+              images:
+                type: array
+                items:
+                  type: string
+                  format: binary
+              category_id:
+                type: integer
+                example: 1
+              discount:
+                type: integer
+                example: 50
+              discount_end:
+                type: string
+                format: date-time
+                example: "2024-07-05T06:57:29.370Z"
+              measurement:
+                type: string
+                example: "17 x 20 cm"
+              varian:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    color:
+                      type: string
+                      example: "Red"
+                    image:
+                      type: string
+                      format: binary
+                    stock:
+                      type: integer
+                      example: 10
+
+    createReview:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "product_id"
+              - "text"
+              - "rating"
+            properties:
+              product_id:
+                type: integer 
+                example: 1
+              text:
+                type: string
+                example: "best product"
+              rating:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 5
+                example: 4
+
+    cart:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "id_product"
+              - "id_varian"
+              - "qty"
+            properties:
+              id_product:
+                type: integer 
+                example: 1
+              id_varian:
+                type: integer 
+                example: 1
+              qty:
+                type: integer
+                example: 1
+    cartUpdate:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "qty"
+            properties:
+              qty:
+                type: integer
+                example: 3
+
+    transactionCreate:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - "id_user"
+              - "total"
+              - "first_name"
+              - "last_name"
+              - "phone"
+              - "email"
+              - "street_address"
+              - "country"
+              - "city"
+              - "state"
+              - "zip_code"
+              - "payment_method"
+            properties:
+              id_user:
+                type: integer 
+                example: 1
+              total:
+                type: number 
+                format: currency
+                example: 300000
+              first_name:
+                type: string
+                example: "Galih"
+              last_name:
+                type: string
+                example: "Prayoga"
+              phone:
+                type: string
+                example: "08123456789"
+              email:
+                type: string
+                example: "galihp83@gmail.com"
+              street_address:
+                type: string
+                example: "Jl. Sudirman, No. 46"
+              country:
+                type: string
+                example: "Indonesia"
+              city:
+                type: string
+                example: "Wonogiri"
+              state:
+                type: string
+                example: "Jawa Tengah"
+              zip_code:
+                type: string
+                example: "57683"
+              payment_method:
+                type: string
+                example: BCA
+                
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
