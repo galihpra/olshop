@@ -670,6 +670,7 @@ components:
               name: "Galih Prayoga"
               username: "galih123"
               email: "galih@gmail.com"
+              phone: "08123456789"
               image: "https://placehold.co/400x400/webp"              
     "userUpdate_200":
       description: "update user success"
@@ -1300,6 +1301,9 @@ components:
               password:
                 type: string
                 example: "galih123"
+              phone:
+                type: string
+                example: "08123456789"
               image:
                 type: string
                 format: binary
