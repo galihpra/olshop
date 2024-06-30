@@ -1162,12 +1162,7 @@ components:
             "default":
               value:
                 message: "bad request"
-            "invalid text":
-              value:
-                message: "please fill text correctly"
-            "invalid rating":
-              value:
-                message: "please fill rating correctly"
+            # validation
     "transactionGetAll_200":
       description: "get all transaction success"
       content:
@@ -1464,11 +1459,7 @@ components:
               - "last_name"
               - "phone"
               - "email"
-              - "street_address"
-              - "country"
-              - "city"
-              - "state"
-              - "zip_code"
+              - "id_address"
               - "payment_method"
             properties:
               id_user:
@@ -1489,7 +1480,10 @@ components:
                 example: "08123456789"
               email:
                 type: string
-                example: "galihp83@gmail.com"              
+                example: "galihp83@gmail.com"
+              id_address:
+                type: string
+                example: 1
               payment_method:
                 type: string
                 example: BCA
