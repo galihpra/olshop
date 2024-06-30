@@ -118,6 +118,64 @@ paths:
           $ref: "#/components/responses/405"
         "500":
           $ref: "#/components/responses/500"
+
+  /addresses:
+    post:
+      tags:
+        - Address
+      summary: "Insert new address"
+      security:
+        - JWT: []
+      requestBody:
+        $ref: "#/components/requestBodies/address"
+      responses:
+        "201":
+          $ref: "#/components/responses/address_201"
+        "400":
+          $ref: "#/components/responses/address_400"
+        "404":
+          $ref: "#/components/responses/404"
+        "401":
+          $ref: "#/components/responses/401"
+        "405":
+          $ref: "#/components/responses/405"
+        "409":
+          $ref: "#/components/responses/address_409"
+        "500":
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - Address
+      summary: "Get all address"
+      responses:
+        "200":
+          $ref: "#/components/responses/addressGetAll_200"
+        "404":
+          $ref: "#/components/responses/404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
+  /addresses/{id}:
+    delete:
+      tags:
+        - Product
+      summary: "Delete Address"
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/addressId"
+      responses:
+        "200":
+          $ref: "#/components/responses/addressDelete_200"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/address_404"
+        "405":
+          $ref: "#/components/responses/405"
+        "500":
+          $ref: "#/components/responses/500"
           
   /products:
     post:
@@ -652,6 +710,100 @@ components:
             "user not found":
               value:
                 message: "user not found"
+
+    "address_201":
+      description: "create address success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "create address success"
+    "address_400":
+      description: "bad request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "bad request"
+            "no input":
+              value:
+                message: "please fill input correctly"
+            "invalid address street":
+              value:
+                message: "please fill address street correctly"
+            "invalid city":
+              value:
+                message: "please fill city correctly"
+            "invalid country":
+              value:
+                message: "please fill country correctly"
+            "invalid state":
+              value:
+                message: "please fill state correctly"            
+            "invalid zip_code":
+              value:
+                message: "please fill zip_code correctly"            
+    "address_409":
+      description: "conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "duplicate address":
+              value:
+                message: "the address is already in the database"
+    "addressGetAll_200":
+      description: "get all address success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "get all address success"
+            data: [
+              {
+                address_id: 1,
+                address_street: "Jl. Merak, No. 56",
+                city: "Wonogiri",
+                country: "Indonesia",
+                state: "Jawa Tengah",
+                zip_code: "57682"
+              },
+              {
+                address_id: 2,
+                address_street: "Jl. Merpati, No. 26",
+                city: "Wonogiri",
+                country: "Indonesia",
+                state: "Jawa Tengah",
+                zip_code: "57682"
+              }
+            ]
+    "addressDelete_200":
+      description: "delete address success"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          example:
+            message: "delete address success"
+    "address_404":
+      description: "not found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResponse"
+          examples:
+            "default":
+              value:
+                message: "not found"
+            "address not found":
+              value:
+                message: "address not found"
                 
     "product_201":
       description: "create product success"
@@ -1087,6 +1239,14 @@ components:
       schema:
         type: integer
         example: 1
+    
+    addressId:
+      name: "id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
                 
   requestBodies:
     login:
@@ -1148,6 +1308,34 @@ components:
               image:
                 type: string
                 format: binary
+    
+    address:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - address_street
+              - city
+              - country
+              - state
+              - zip_code
+            properties:
+              street_address:
+                type: string
+                example: "Jl. Sudirman, No. 46"
+              country:
+                type: string
+                example: "Indonesia"
+              city:
+                type: string
+                example: "Wonogiri"
+              state:
+                type: string
+                example: "Jawa Tengah"
+              zip_code:
+                type: string
+                example: "57683"
                 
     product:
       content:
@@ -1301,22 +1489,7 @@ components:
                 example: "08123456789"
               email:
                 type: string
-                example: "galihp83@gmail.com"
-              street_address:
-                type: string
-                example: "Jl. Sudirman, No. 46"
-              country:
-                type: string
-                example: "Indonesia"
-              city:
-                type: string
-                example: "Wonogiri"
-              state:
-                type: string
-                example: "Jawa Tengah"
-              zip_code:
-                type: string
-                example: "57683"
+                example: "galihp83@gmail.com"              
               payment_method:
                 type: string
                 example: BCA
