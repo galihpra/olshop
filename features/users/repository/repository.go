@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"context"
 	"olshop/features/users"
+	"olshop/utilities/cloudinary"
 	"time"
 
 	"gorm.io/gorm"
@@ -18,12 +20,14 @@ type User struct {
 }
 
 type userRepository struct {
-	db *gorm.DB
+	db    *gorm.DB
+	cloud cloudinary.Cloud
 }
 
-func NewUserRepository(db *gorm.DB) users.Repository {
+func NewUserRepository(db *gorm.DB, cloud cloudinary.Cloud) users.Repository {
 	return &userRepository{
-		db: db,
+		db:    db,
+		cloud: cloud,
 	}
 }
 
@@ -56,4 +60,36 @@ func (repo *userRepository) Login(email string) (*users.User, error) {
 	result.Email = data.Email
 
 	return result, nil
+}
+
+func (repo *userRepository) Update(id uint, updateUser users.User) error {
+	if updateUser.ImageRaw != nil {
+		url, err := repo.cloud.Upload(context.Background(), "users", updateUser.ImageRaw)
+		if err != nil {
+			return err
+		}
+
+		updateUser.Image = *url
+	}
+
+	var model = new(User)
+	model.Name = updateUser.Name
+	model.Email = updateUser.Email
+	model.Password = updateUser.Password
+	model.Username = updateUser.Username
+	model.Image = updateUser.Image
+
+	if err := repo.db.Where(&User{Id: id}).Updates(model).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *userRepository) Delete(id uint) error {
+	panic("unimplemented")
+}
+
+func (repo *userRepository) GetById(id uint) (*users.User, error) {
+	panic("unimplemented")
 }
