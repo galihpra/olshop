@@ -62,3 +62,45 @@ func (service *userService) Login(email string, password string) (*users.User, e
 
 	return result, nil
 }
+
+func (service *userService) Update(id uint, updateUser users.User) error {
+	if id == 0 {
+		return errors.New("validate: invalid id")
+	}
+	if updateUser.Name == "" {
+		return errors.New("validate: name can't be empty")
+	}
+	if updateUser.Email == "" {
+		return errors.New("validate: email can't be empty")
+	}
+	if updateUser.Password == "" {
+		return errors.New("validate: password can't be empty")
+	}
+	if updateUser.Username == "" {
+		return errors.New("validate: username can't be empty")
+	}
+	if updateUser.Image == "" {
+		return errors.New("validate: image can't be empty")
+	}
+
+	encrypt, err := service.hash.HashPassword(updateUser.Password)
+	if err != nil {
+		return err
+	}
+
+	updateUser.Password = encrypt
+
+	if err := service.repo.Update(id, updateUser); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *userService) Delete(id uint) error {
+	panic("unimplemented")
+}
+
+func (service *userService) GetById(id uint) (*users.User, error) {
+	panic("unimplemented")
+}
