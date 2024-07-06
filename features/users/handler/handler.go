@@ -147,7 +147,7 @@ func (hdl *userHandler) Update() echo.HandlerFunc {
 
 			request.Image = src
 		}
-		parseInput.Image = request.Email
+		parseInput.ImageRaw = request.Image
 
 		if err := hdl.service.Update(userId, *parseInput); err != nil {
 			c.Logger().Error(err)
