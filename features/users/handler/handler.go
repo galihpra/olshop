@@ -7,6 +7,7 @@ import (
 	tokens "olshop/helpers/token"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -102,4 +103,83 @@ func (hdl *userHandler) Login() echo.HandlerFunc {
 		response["data"] = data
 		return c.JSON(http.StatusOK, response)
 	}
+}
+
+func (hdl *userHandler) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+		var request = new(RegisterRequest)
+
+		token := c.Get("user")
+		if token == nil {
+			response["message"] = "unauthorized access"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		userId, err := tokens.ExtractToken(hdl.jwtConfig.Secret, token.(*jwt.Token))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "unauthorized"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		if c.Bind(request); err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "incorect input"
+			return c.JSON(http.StatusBadRequest, response)
+		}
+
+		var parseInput = new(users.User)
+		parseInput.Name = request.Name
+		parseInput.Email = request.Email
+		parseInput.Password = request.Password
+		parseInput.Username = request.Username
+
+		file, _ := c.FormFile("image")
+		if file != nil {
+			src, err := file.Open()
+			if err != nil {
+				return err
+			}
+			defer src.Close()
+
+			request.Image = src
+		}
+		parseInput.Image = request.Email
+
+		if err := hdl.service.Update(userId, *parseInput); err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "validate: ") {
+				response["message"] = strings.ReplaceAll(err.Error(), "validate: ", "")
+				return c.JSON(http.StatusBadRequest, response)
+			}
+
+			if strings.Contains(err.Error(), "not found: ") {
+				response["message"] = "user not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			if strings.Contains(err.Error(), "Duplicate") {
+				response["message"] = "this email has been used, please use another email"
+				return c.JSON(http.StatusConflict, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		response["message"] = "update user success"
+		return c.JSON(http.StatusOK, response)
+	}
+}
+
+func (hdl *userHandler) Delete() echo.HandlerFunc {
+	panic("unimplemented")
+}
+
+func (hdl *userHandler) GetById() echo.HandlerFunc {
+	panic("unimplemented")
 }
