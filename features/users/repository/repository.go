@@ -63,21 +63,17 @@ func (repo *userRepository) Login(email string) (*users.User, error) {
 }
 
 func (repo *userRepository) Update(id uint, updateUser users.User) error {
-	if updateUser.ImageRaw != nil {
-		url, err := repo.cloud.Upload(context.Background(), "users", updateUser.ImageRaw)
-		if err != nil {
-			return err
-		}
-
-		updateUser.Image = *url
-	}
-
 	var model = new(User)
 	model.Name = updateUser.Name
 	model.Email = updateUser.Email
 	model.Password = updateUser.Password
 	model.Username = updateUser.Username
-	model.Image = updateUser.Image
+
+	url, err := repo.cloud.Upload(context.Background(), "users", updateUser.ImageRaw)
+	if err != nil {
+		return err
+	}
+	model.Image = *url
 
 	if err := repo.db.Where(&User{Id: id}).Updates(model).Error; err != nil {
 		return err
