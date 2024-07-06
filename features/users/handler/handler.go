@@ -124,10 +124,10 @@ func (hdl *userHandler) Update() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response)
 		}
 
-		if c.Bind(request); err != nil {
+		if err := c.Bind(request); err != nil {
 			c.Logger().Error(err)
 
-			response["message"] = "incorect input"
+			response["message"] = "please fill input correctly"
 			return c.JSON(http.StatusBadRequest, response)
 		}
 
