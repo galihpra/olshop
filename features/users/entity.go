@@ -1,7 +1,6 @@
 package users
 
 import (
-	"context"
 	"io"
 	"time"
 
@@ -23,16 +22,22 @@ type Handler interface {
 	Register() echo.HandlerFunc
 	Login() echo.HandlerFunc
 	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
+	GetById() echo.HandlerFunc
 }
 
 type Service interface {
 	Register(newUser User) error
 	Login(email string, password string) (*User, error)
-	Update(ctx context.Context, id uint, updateUser User) error
+	Update(id uint, updateUser User) error
+	Delete(id uint) error
+	GetById(id uint) (*User, error)
 }
 
 type Repository interface {
 	Register(newUser User) error
 	Login(email string) (*User, error)
-	Update(ctx context.Context, id uint, updateUser User) error
+	Update(id uint, updateUser User) error
+	Delete(id uint) error
+	GetById(id uint) (*User, error)
 }
