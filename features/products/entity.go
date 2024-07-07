@@ -32,14 +32,23 @@ type Category struct {
 type Handler interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
+	Update() echo.HandlerFunc
+	GetProductDetail() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }
 
 type Service interface {
 	Create(ctx context.Context, data Product) error
 	GetAll(ctx context.Context) ([]Product, int, error)
+	Update(ctx context.Context, updateProduct Product) error
+	GetProductDetail(ctx context.Context, id uint) (*Product, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 type Repository interface {
 	Create(ctx context.Context, data Product) error
 	GetAll(ctx context.Context) ([]Product, int, error)
+	Update(ctx context.Context, updateProduct Product) error
+	GetProductDetail(ctx context.Context, id uint) (*Product, error)
+	Delete(ctx context.Context, id uint) error
 }
