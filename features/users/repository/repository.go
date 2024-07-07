@@ -59,6 +59,7 @@ func (repo *userRepository) Login(email string) (*users.User, error) {
 	result.Password = data.Password
 	result.Username = data.Username
 	result.Email = data.Email
+	result.Image = data.Image
 
 	return result, nil
 }

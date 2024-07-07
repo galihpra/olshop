@@ -97,6 +97,7 @@ func (hdl *userHandler) Login() echo.HandlerFunc {
 		data.Name = result.Name
 		data.Username = result.Username
 		data.Email = result.Email
+		data.Image = result.Image
 		data.Token = strToken
 
 		response["message"] = "login success"
@@ -212,5 +213,45 @@ func (hdl *userHandler) Delete() echo.HandlerFunc {
 }
 
 func (hdl *userHandler) GetById() echo.HandlerFunc {
-	panic("unimplemented")
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+
+		token := c.Get("user")
+		if token == nil {
+			response["message"] = "unauthorized access"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		userId, err := tokens.ExtractToken(hdl.jwtConfig.Secret, token.(*jwt.Token))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "unauthorized"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		result, err := hdl.service.GetById(userId)
+		if err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "not found: ") {
+				response["message"] = "user not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		var data = new(UserResponse)
+		data.Name = result.Name
+		data.Username = result.Username
+		data.Email = result.Email
+		data.Image = result.Image
+
+		response["message"] = "get user success"
+		response["data"] = data
+		return c.JSON(http.StatusOK, response)
+
+	}
 }
