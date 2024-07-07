@@ -15,16 +15,18 @@ type Product struct {
 	Price        float64 `gorm:"column:price; type:decimal(16,2);"`
 	ThumbnailUrl string  `gorm:"column:thumbnail; type:text;"`
 
-	Images []Image `gorm:"many2many:product_images;"`
+	Images []Image
 
 	CategoryId uint     `gorm:"column:category_id"`
 	Category   Category `gorm:"foreignKey:CategoryId;references:Id"`
 }
 
 type Image struct {
-	Id       uint      `gorm:"column:id; primaryKey;"`
-	ImageURL string    `gorm:"column:image_url; type:text"`
-	ImageRaw io.Reader `gorm:"-"`
+	Id        uint      `gorm:"column:id; primaryKey;"`
+	ProductId uint      `gorm:"column:product_id;"`
+	Product   Product   `gorm:"foreignKey:ProductId;references:Id"`
+	ImageURL  string    `gorm:"column:image_url; type:text"`
+	ImageRaw  io.Reader `gorm:"-"`
 }
 
 type Category struct {
