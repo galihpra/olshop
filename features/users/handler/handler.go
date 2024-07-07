@@ -206,7 +206,7 @@ func (hdl *userHandler) Delete() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, response)
 		}
 
-		response["message"] = "update user success"
+		response["message"] = "delete user success"
 		return c.JSON(http.StatusOK, response)
 	}
 }
