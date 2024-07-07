@@ -98,7 +98,15 @@ func (service *userService) Update(id uint, updateUser users.User) error {
 }
 
 func (service *userService) Delete(id uint) error {
-	panic("unimplemented")
+	if id == 0 {
+		return errors.New("validate: invalid id")
+	}
+
+	if err := service.repo.Delete(id); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *userService) GetById(id uint) (*users.User, error) {
