@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"olshop/features/users"
 	"olshop/utilities/cloudinary"
 	"time"
@@ -83,7 +84,16 @@ func (repo *userRepository) Update(id uint, updateUser users.User) error {
 }
 
 func (repo *userRepository) Delete(id uint) error {
-	panic("unimplemented")
+	deleteQuery := repo.db.Delete(&User{Id: id})
+	if deleteQuery.Error != nil {
+		return deleteQuery.Error
+	}
+
+	if deleteQuery.RowsAffected == 0 {
+		return errors.New("not found")
+	}
+
+	return nil
 }
 
 func (repo *userRepository) GetById(id uint) (*users.User, error) {
