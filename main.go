@@ -48,7 +48,7 @@ func main() {
 	}
 
 	enc := encrypt.New()
-	userRepository := ur.NewUserRepository(dbConnection)
+	userRepository := ur.NewUserRepository(dbConnection, cloudinary)
 	userService := us.New(userRepository, enc)
 	userHandler := uh.NewUserHandler(userService, *jwtConfig)
 
