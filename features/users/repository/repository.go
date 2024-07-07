@@ -97,5 +97,18 @@ func (repo *userRepository) Delete(id uint) error {
 }
 
 func (repo *userRepository) GetById(id uint) (*users.User, error) {
-	panic("unimplemented")
+	var data = new(User)
+
+	if err := repo.db.Where("id = ?", id).First(data).Error; err != nil {
+		return nil, err
+	}
+
+	var result = new(users.User)
+	result.Id = data.Id
+	result.Name = data.Name
+	result.Username = data.Username
+	result.Email = data.Email
+	result.Image = data.Image
+
+	return result, nil
 }
