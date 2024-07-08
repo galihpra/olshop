@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"io"
 	"olshop/features/products"
 	"olshop/helpers/filters"
@@ -18,7 +19,7 @@ type Product struct {
 	Rating       float32 `gorm:"column:rating; type:decimal(1,1);"`
 	Discount     int     `gorm:"column:discount; type:integer;"`
 
-	Images []Image
+	Images []Image `gorm:"constraint:OnDelete:CASCADE;"`
 
 	CategoryId uint     `gorm:"column:category_id"`
 	Category   Category `gorm:"foreignKey:CategoryId;references:Id"`
@@ -27,7 +28,7 @@ type Product struct {
 type Image struct {
 	Id        uint      `gorm:"column:id; primaryKey;"`
 	ProductId uint      `gorm:"column:product_id;"`
-	Product   Product   `gorm:"foreignKey:ProductId;references:Id"`
+	Product   Product   `gorm:"foreignKey:ProductId;references:Id;constraint:OnDelete:CASCADE;"`
 	ImageURL  string    `gorm:"column:image_url; type:text"`
 	ImageRaw  io.Reader `gorm:"-"`
 }
@@ -144,7 +145,16 @@ func (repo *productRepository) GetAll(ctx context.Context, flt filters.Filter) (
 }
 
 func (repo *productRepository) Delete(ctx context.Context, id uint) error {
-	panic("unimplemented")
+	deleteQuery := repo.db.Delete(&Product{Id: id})
+	if deleteQuery.Error != nil {
+		return deleteQuery.Error
+	}
+
+	if deleteQuery.RowsAffected == 0 {
+		return errors.New("not found")
+	}
+
+	return nil
 }
 
 func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
