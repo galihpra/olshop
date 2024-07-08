@@ -42,7 +42,15 @@ func (srv *productService) GetAll(ctx context.Context, flt filters.Filter) ([]pr
 }
 
 func (srv *productService) Delete(ctx context.Context, id uint) error {
-	panic("unimplemented")
+	if id == 0 {
+		return errors.New("validate: invalid id")
+	}
+
+	if err := srv.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (srv *productService) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
