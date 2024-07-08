@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"olshop/features/products"
+	"olshop/helpers/filters"
 	"olshop/utilities/cloudinary"
 
 	"gorm.io/gorm"
@@ -14,6 +15,8 @@ type Product struct {
 	Name         string  `gorm:"column:name; type:varchar(200);"`
 	Price        float64 `gorm:"column:price; type:decimal(16,2);"`
 	ThumbnailUrl string  `gorm:"column:thumbnail; type:text;"`
+	Rating       float32 `gorm:"column:rating; type:decimal(1,1);"`
+	Discount     int     `gorm:"column:discount; type:integer;"`
 
 	Images []Image
 
@@ -50,6 +53,7 @@ func (repo *productRepository) Create(ctx context.Context, data products.Product
 	var inputDB = new(Product)
 	inputDB.Name = data.Name
 	inputDB.Price = data.Price
+	inputDB.Discount = data.Discount
 	inputDB.CategoryId = data.Category.ID
 
 	for i := 0; i < len(data.Images); i++ {
@@ -77,6 +81,76 @@ func (repo *productRepository) Create(ctx context.Context, data products.Product
 	return nil
 }
 
-func (repo *productRepository) GetAll(ctx context.Context) ([]products.Product, int, error) {
+func (repo *productRepository) GetAll(ctx context.Context, flt filters.Filter) ([]products.Product, int, error) {
+	var dataProduct []Product
+	var totalData int64
+
+	qry := repo.db.WithContext(ctx).Model(&Product{})
+
+	qry = qry.Select(
+		"products.id",
+		"products.name",
+		"products.price",
+		"products.thumbnail",
+		"products.discount",
+		"products.rating",
+	)
+
+	if flt.Search.Keyword != "" {
+		qry = qry.Where("name like ?", "%"+flt.Search.Keyword+"%")
+	}
+
+	qry.Count(&totalData)
+
+	if flt.Sort.Column != "" {
+		dir := "asc"
+		if flt.Sort.Direction {
+			dir = "desc"
+		}
+
+		switch flt.Sort.Column {
+		case "rating", "price", "discount":
+			qry = qry.Order(flt.Sort.Column + " " + dir)
+		default:
+			qry = qry.Order("id desc")
+		}
+	}
+
+	if flt.Pagination.Limit != 0 {
+		qry = qry.Limit(flt.Pagination.Limit)
+	}
+
+	if flt.Pagination.Start != 0 {
+		qry = qry.Offset(flt.Pagination.Start)
+	}
+
+	if err := qry.Find(&dataProduct).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var result []products.Product
+	for _, product := range dataProduct {
+		result = append(result, products.Product{
+			ID:        product.Id,
+			Name:      product.Name,
+			Price:     product.Price,
+			Rating:    product.Rating,
+			Discount:  product.Discount,
+			Thumbnail: product.ThumbnailUrl,
+		})
+	}
+
+	return result, int(totalData), nil
+}
+
+func (repo *productRepository) Delete(ctx context.Context, id uint) error {
+	panic("unimplemented")
+}
+
+func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
+	panic("unimplemented")
+}
+
+func (repo *productRepository) Update(ctx context.Context, updateProduct products.Product) error {
 	panic("unimplemented")
 }
