@@ -7,4 +7,5 @@ type CreateRequest struct {
 	Price      float64 `json:"price" form:"price"`
 	Images     []io.Reader
 	CategoryId uint `form:"category_id"`
+	Discount   int  `json:"discount" form:"discount"`
 }
