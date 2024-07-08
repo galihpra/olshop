@@ -31,5 +31,6 @@ func (router *Routes) UserRouter() {
 func (router *Routes) ProductRouter() {
 	router.Server.POST("/products", router.ProductHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.GET("/products", router.ProductHandler.GetAll())
+	router.Server.GET("/products/:id", router.ProductHandler.GetProductDetail())
 	router.Server.DELETE("/products/:id", router.ProductHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
 }

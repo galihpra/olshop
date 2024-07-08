@@ -9,5 +9,5 @@ type ProductResponse struct {
 	Rating      float32 `json:"rating,omitempty"`
 
 	Thumbnail string   `json:"thumbnail,omitempty"`
-	Images    []string `json:"images,omitempty"`
+	Images    []string `json:"picture,omitempty"`
 }

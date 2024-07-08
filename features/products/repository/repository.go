@@ -18,6 +18,7 @@ type Product struct {
 	ThumbnailUrl string  `gorm:"column:thumbnail; type:text;"`
 	Rating       float32 `gorm:"column:rating; type:decimal(1,1);"`
 	Discount     int     `gorm:"column:discount; type:integer;"`
+	Description  string  `gorm:"column:discount; type:text;"`
 
 	Images []Image `gorm:"constraint:OnDelete:CASCADE;"`
 
@@ -158,7 +159,30 @@ func (repo *productRepository) Delete(ctx context.Context, id uint) error {
 }
 
 func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
-	panic("unimplemented")
+	var data = new(Product)
+
+	if err := repo.db.Preload("Images").Where("id = ?", id).First(data).Error; err != nil {
+		return nil, err
+	}
+
+	var result = new(products.Product)
+	result.ID = data.Id
+	result.Name = data.Name
+	result.Price = data.Price
+	result.Discount = data.Discount
+	result.Description = data.Description
+
+	var images []products.Image
+	for _, img := range data.Images {
+		images = append(images, products.Image{
+			ID:       img.Id,
+			ImageURL: img.ImageURL,
+		})
+	}
+	result.Images = images
+
+	return result, nil
+
 }
 
 func (repo *productRepository) Update(ctx context.Context, updateProduct products.Product) error {

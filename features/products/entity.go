@@ -9,12 +9,13 @@ import (
 )
 
 type Product struct {
-	ID        uint
-	Name      string
-	Rating    float32
-	Price     float64
-	Thumbnail string
-	Discount  int
+	ID          uint
+	Name        string
+	Rating      float32
+	Price       float64
+	Thumbnail   string
+	Discount    int
+	Description string
 
 	Images   []Image
 	Category Category

@@ -224,7 +224,44 @@ func (hdl *productHandler) Delete() echo.HandlerFunc {
 
 func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		panic("unimplemented")
+		var response = make(map[string]any)
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "invalid product id"
+		}
+
+		result, err := hdl.service.GetProductDetail(c.Request().Context(), uint(id))
+		if err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "not found") {
+				response["message"] = "not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		var data = new(ProductResponse)
+		data.Name = result.Name
+		data.Price = result.Price
+		data.Description = result.Description
+		data.Discount = result.Discount
+		data.Rating = result.Rating
+
+		var images []string
+		for _, img := range result.Images {
+			images = append(images, img.ImageURL)
+		}
+		data.Images = images
+
+		response["data"] = data
+		response["message"] = "get detail product success"
+		return c.JSON(http.StatusOK, response)
 	}
 }
 

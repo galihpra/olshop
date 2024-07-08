@@ -54,7 +54,12 @@ func (srv *productService) Delete(ctx context.Context, id uint) error {
 }
 
 func (srv *productService) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
-	panic("unimplemented")
+	result, err := srv.repo.GetProductDetail(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (srv *productService) Update(ctx context.Context, updateProduct products.Product) error {
