@@ -3,6 +3,7 @@ package products
 import (
 	"context"
 	"io"
+	"olshop/helpers/filters"
 
 	"github.com/labstack/echo/v4"
 )
@@ -12,7 +13,8 @@ type Product struct {
 	Name      string
 	Rating    float32
 	Price     float64
-	Thumbnail Image
+	Thumbnail string
+	Discount  int
 
 	Images   []Image
 	Category Category
@@ -39,7 +41,7 @@ type Handler interface {
 
 type Service interface {
 	Create(ctx context.Context, data Product) error
-	GetAll(ctx context.Context) ([]Product, int, error)
+	GetAll(ctx context.Context, flt filters.Filter) ([]Product, int, error)
 	Update(ctx context.Context, updateProduct Product) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
@@ -47,7 +49,7 @@ type Service interface {
 
 type Repository interface {
 	Create(ctx context.Context, data Product) error
-	GetAll(ctx context.Context) ([]Product, int, error)
+	GetAll(ctx context.Context, flt filters.Filter) ([]Product, int, error)
 	Update(ctx context.Context, updateProduct Product) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
