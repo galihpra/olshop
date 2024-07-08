@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"olshop/features/products"
 	"olshop/helpers/filters"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -190,7 +191,34 @@ func (hdl *productHandler) GetAll() echo.HandlerFunc {
 
 func (hdl *productHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		panic("unimplemented")
+		var response = make(map[string]any)
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "invalid product id"
+		}
+
+		if err := hdl.service.Delete(c.Request().Context(), uint(id)); err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "not found") {
+				response["message"] = "not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			if strings.Contains(err.Error(), "invalid id") {
+				response["message"] = "not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		response["message"] = "delete product success"
+		return c.JSON(http.StatusOK, response)
 	}
 }
 
