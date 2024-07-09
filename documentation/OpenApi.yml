@@ -159,7 +159,7 @@ paths:
   /addresses/{id}:
     delete:
       tags:
-        - Product
+        - Address
       summary: "Delete Address"
       security:
         - JWT: []
