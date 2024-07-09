@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"olshop/features/addresses"
 
 	"gorm.io/gorm"
@@ -51,7 +52,16 @@ func (repo *addressRepository) Create(ctx context.Context, data addresses.Addres
 }
 
 func (repo *addressRepository) Delete(ctx context.Context, id uint) error {
-	panic("unimplemented")
+	deleteQuery := repo.db.Delete(&Address{Id: id})
+	if deleteQuery.Error != nil {
+		return deleteQuery.Error
+	}
+
+	if deleteQuery.RowsAffected == 0 {
+		return errors.New("not found")
+	}
+
+	return nil
 }
 
 func (repo *addressRepository) GetAll(ctx context.Context) ([]addresses.Address, error) {
