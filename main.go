@@ -2,6 +2,9 @@ package main
 
 import (
 	"olshop/config"
+	ah "olshop/features/addresses/handler"
+	ar "olshop/features/addresses/repository"
+	as "olshop/features/addresses/service"
 	ph "olshop/features/products/handler"
 	pr "olshop/features/products/repository"
 	ps "olshop/features/products/service"
@@ -52,6 +55,10 @@ func main() {
 	userService := us.New(userRepository, enc)
 	userHandler := uh.NewUserHandler(userService, *jwtConfig)
 
+	addressRepository := ar.NewAddressRepository(dbConnection)
+	addressService := as.NewAddressService(addressRepository)
+	addressHandler := ah.NewAddressHandler(addressService, *jwtConfig)
+
 	productRepository := pr.NewProductRepository(dbConnection, cloudinary)
 	productService := ps.NewProductService(productRepository)
 	productHandler := ph.NewProductHandler(productService)
@@ -64,6 +71,7 @@ func main() {
 		JWTKey:         jwtConfig.Secret,
 		Server:         app,
 		UserHandler:    userHandler,
+		AddressHandler: addressHandler,
 		ProductHandler: productHandler,
 	}
 

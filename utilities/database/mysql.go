@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"olshop/config"
+	ar "olshop/features/addresses/repository"
 	pr "olshop/features/products/repository"
 	ur "olshop/features/users/repository"
 
@@ -21,6 +22,7 @@ func MysqlInit(cfg config.DatabaseMysql) (*gorm.DB, error) {
 
 func MysqlMigrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
+		&ar.Address{},
 		&ur.User{},
 		&pr.Category{},
 		&pr.Image{},

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"olshop/features/addresses"
 	"olshop/features/products"
 	"olshop/features/users"
 
@@ -13,11 +14,13 @@ type Routes struct {
 	Server         *echo.Echo
 	UserHandler    users.Handler
 	ProductHandler products.Handler
+	AddressHandler addresses.Handler
 }
 
 func (router Routes) InitRouter() {
 	router.UserRouter()
 	router.ProductRouter()
+	router.AddressRouter()
 }
 
 func (router *Routes) UserRouter() {
@@ -33,4 +36,10 @@ func (router *Routes) ProductRouter() {
 	router.Server.GET("/products", router.ProductHandler.GetAll())
 	router.Server.GET("/products/:id", router.ProductHandler.GetProductDetail())
 	router.Server.DELETE("/products/:id", router.ProductHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
+}
+
+func (router *Routes) AddressRouter() {
+	router.Server.POST("/addresses", router.AddressHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
+	router.Server.GET("/addresses", router.AddressHandler.GetAll(), echojwt.JWT([]byte(router.JWTKey)))
+	router.Server.DELETE("/addresses/:id", router.AddressHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
 }
