@@ -45,5 +45,10 @@ func (service *addressService) Delete(ctx context.Context, id uint) error {
 }
 
 func (service *addressService) GetAll(ctx context.Context) ([]addresses.Address, error) {
-	panic("unimplemented")
+	result, err := service.repo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
