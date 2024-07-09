@@ -6,6 +6,7 @@ import (
 	"olshop/config"
 	"olshop/features/addresses"
 	tokens "olshop/helpers/token"
+	"strconv"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -81,7 +82,36 @@ func (handler *addressHandler) Create() echo.HandlerFunc {
 }
 
 func (handler *addressHandler) Delete() echo.HandlerFunc {
-	panic("unimplemented")
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "invalid product id"
+		}
+
+		if err := handler.service.Delete(c.Request().Context(), uint(id)); err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "not found") {
+				response["message"] = "not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			if strings.Contains(err.Error(), "invalid id") {
+				response["message"] = "not found"
+				return c.JSON(http.StatusNotFound, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		response["message"] = "delete address success"
+		return c.JSON(http.StatusOK, response)
+	}
 }
 
 func (handler *addressHandler) GetAll() echo.HandlerFunc {
