@@ -40,4 +40,5 @@ func (router *Routes) ProductRouter() {
 
 func (router *Routes) AddressRouter() {
 	router.Server.POST("/addresses", router.AddressHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
+	router.Server.GET("/addresses", router.AddressHandler.GetAll(), echojwt.JWT([]byte(router.JWTKey)))
 }
