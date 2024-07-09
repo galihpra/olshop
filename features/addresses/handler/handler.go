@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"olshop/config"
 	"olshop/features/addresses"
@@ -84,5 +85,31 @@ func (handler *addressHandler) Delete() echo.HandlerFunc {
 }
 
 func (handler *addressHandler) GetAll() echo.HandlerFunc {
-	panic("unimplemented")
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+
+		result, err := handler.service.GetAll(context.Background())
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		var data []AddressResponse
+		for _, address := range result {
+			data = append(data, AddressResponse{
+				Id:      address.ID,
+				Street:  address.Street,
+				City:    address.City,
+				Country: address.Country,
+				State:   address.State,
+				Zip:     address.Zip,
+			})
+		}
+
+		response["message"] = "get all address success"
+		response["data"] = data
+		return c.JSON(http.StatusOK, response)
+	}
 }
