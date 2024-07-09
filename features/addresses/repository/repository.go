@@ -55,5 +55,23 @@ func (repo *addressRepository) Delete(ctx context.Context, id uint) error {
 }
 
 func (repo *addressRepository) GetAll(ctx context.Context) ([]addresses.Address, error) {
-	panic("unimplemented")
+	var dataAddress []Address
+
+	if err := repo.db.Find(&dataAddress).Error; err != nil {
+		return nil, err
+	}
+
+	var result []addresses.Address
+	for _, address := range dataAddress {
+		result = append(result, addresses.Address{
+			ID:      address.Id,
+			Street:  address.Street,
+			City:    address.City,
+			Country: address.Country,
+			State:   address.State,
+			Zip:     address.Zip,
+		})
+	}
+
+	return result, nil
 }
