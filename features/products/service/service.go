@@ -5,6 +5,7 @@ import (
 	"errors"
 	"olshop/features/products"
 	"olshop/helpers/filters"
+	"time"
 )
 
 type productService struct {
@@ -21,8 +22,55 @@ func (srv *productService) Create(ctx context.Context, data products.Product) er
 	if data.Name == "" {
 		return errors.New("validate: name can't be empty")
 	}
-	if data.Price == 0 {
-		return errors.New("validate: price can't be empty")
+	if data.Price <= 0 {
+		return errors.New("validate: price must be greater than zero")
+	}
+	if data.Category.ID == 0 {
+		return errors.New("validate: category can't be empty")
+	}
+	if data.Discount <= 0 || data.Discount > 100 {
+		return errors.New("validate: discount must be between 10 and 100")
+	}
+	if data.Discount == 0 {
+		return errors.New("validate: discount can't be empty")
+	}
+	if data.Measurement == "" {
+		return errors.New("validate: measurement can't be empty")
+	}
+	if data.DiscountEnd.Before(time.Now()) {
+		return errors.New("validate: discount end must be a future date")
+	}
+
+	if len(data.Images) == 0 {
+		return errors.New("validate: at least one image is required")
+	}
+
+	for _, img := range data.Images {
+		if img.ImageRaw == nil {
+			return errors.New("validate: all images must have content")
+		}
+	}
+
+	var totalVarianStock int
+	for _, varian := range data.Varians {
+		if varian.Color == "" {
+			return errors.New("validate: varian color can't be empty")
+		}
+		if varian.Stock < 0 {
+			return errors.New("validate: varian stock can't be negative")
+		}
+		if varian.ImageRaw == nil {
+			return errors.New("validate: varian image must have content")
+		}
+		totalVarianStock += varian.Stock
+	}
+
+	if len(data.Varians) > 0 {
+		data.Stock = totalVarianStock
+	} else {
+		if data.Stock <= 0 {
+			return errors.New("validate: stock can't be negative or zero")
+		}
 	}
 
 	if err := srv.repo.Create(ctx, data); err != nil {
