@@ -26,6 +26,7 @@ func MysqlMigrate(db *gorm.DB) error {
 		&ur.User{},
 		&pr.Category{},
 		&pr.Image{},
+		&pr.Varian{},
 		&pr.Product{},
 	)
 
