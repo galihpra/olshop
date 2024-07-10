@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"olshop/helpers/filters"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,9 +17,13 @@ type Product struct {
 	Thumbnail   string
 	Discount    int
 	Description string
+	Stock       int
+	DiscountEnd time.Time
+	Measurement string
 
 	Images   []Image
 	Category Category
+	Varians  []Varian
 }
 
 type Image struct {
@@ -30,6 +35,14 @@ type Image struct {
 type Category struct {
 	ID       uint
 	Category string
+}
+
+type Varian struct {
+	ID       uint
+	Color    string
+	Stock    int
+	ImageURL string
+	ImageRaw io.Reader
 }
 
 type Handler interface {

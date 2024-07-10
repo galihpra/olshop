@@ -7,23 +7,28 @@ import (
 	"olshop/features/products"
 	"olshop/helpers/filters"
 	"olshop/utilities/cloudinary"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type Product struct {
-	Id           uint    `gorm:"column:id; primaryKey;"`
-	Name         string  `gorm:"column:name; type:varchar(200);"`
-	Price        float64 `gorm:"column:price; type:decimal(16,2);"`
-	ThumbnailUrl string  `gorm:"column:thumbnail; type:text;"`
-	Rating       float32 `gorm:"column:rating; type:decimal(1,1);"`
-	Discount     int     `gorm:"column:discount; type:integer;"`
-	Description  string  `gorm:"column:discount; type:text;"`
+	Id           uint      `gorm:"column:id; primaryKey;"`
+	Name         string    `gorm:"column:name; type:varchar(200);"`
+	Price        float64   `gorm:"column:price; type:decimal(16,2);"`
+	ThumbnailUrl string    `gorm:"column:thumbnail; type:text;"`
+	Rating       float32   `gorm:"column:rating; type:decimal(1,1);"`
+	Discount     int       `gorm:"column:discount; type:integer;"`
+	Description  string    `gorm:"column:discount; type:text;"`
+	Stock        int       `gorm:"column:stock; type:integer;"`
+	DiscountEnd  time.Time `gorm:"column:discount_end; type:timestamp;"`
+	Measurement  string    `gorm:"column:measurement; type:varchar(20);"`
 
 	Images []Image `gorm:"constraint:OnDelete:CASCADE;"`
 
 	CategoryId uint     `gorm:"column:category_id"`
 	Category   Category `gorm:"foreignKey:CategoryId;references:Id"`
+	Varians    []Varian `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Image struct {
@@ -37,6 +42,17 @@ type Image struct {
 type Category struct {
 	Id       uint   `gorm:"column:id; primaryKey;"`
 	Category string `gorm:"column:category; type:varchar(200);"`
+}
+
+type Varian struct {
+	Id        uint    `gorm:"column:id; primaryKey;"`
+	ProductId uint    `gorm:"column:product_id;"`
+	Product   Product `gorm:"foreignKey:ProductId;references:Id;constraint:OnDelete:CASCADE;"`
+	Color     string  `gorm:"column:color; type:varchar(20);"`
+	Stock     int     `gorm:"column:stock; type:integer;"`
+
+	ImageURL string    `gorm:"column:image_url; type:text"`
+	ImageRaw io.Reader `gorm:"-"`
 }
 
 type productRepository struct {
@@ -57,6 +73,9 @@ func (repo *productRepository) Create(ctx context.Context, data products.Product
 	inputDB.Price = data.Price
 	inputDB.Discount = data.Discount
 	inputDB.CategoryId = data.Category.ID
+	inputDB.Stock = data.Stock
+	inputDB.DiscountEnd = data.DiscountEnd
+	inputDB.Measurement = data.Measurement
 
 	for i := 0; i < len(data.Images); i++ {
 		url, err := repo.cloud.Upload(ctx, "products", data.Images[i].ImageRaw)
@@ -74,6 +93,21 @@ func (repo *productRepository) Create(ctx context.Context, data products.Product
 		}
 
 		inputDB.Images = append(inputDB.Images, image)
+	}
+
+	for i := 0; i < len(data.Varians); i++ {
+		url, err := repo.cloud.Upload(ctx, "varians", data.Varians[i].ImageRaw)
+		if err != nil {
+			return err
+		}
+
+		varian := Varian{
+			Color:    data.Varians[i].Color,
+			Stock:    data.Varians[i].Stock,
+			ImageURL: *url,
+		}
+
+		inputDB.Varians = append(inputDB.Varians, varian)
 	}
 
 	if err := repo.db.Create(inputDB).Error; err != nil {
