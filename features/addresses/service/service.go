@@ -40,12 +40,12 @@ func (service *addressService) Create(ctx context.Context, data addresses.Addres
 	return nil
 }
 
-func (service *addressService) Delete(ctx context.Context, id uint) error {
+func (service *addressService) Delete(ctx context.Context, id uint, userId uint) error {
 	if id == 0 {
 		return errors.New("validate: invalid id")
 	}
 
-	if err := service.repo.Delete(ctx, id); err != nil {
+	if err := service.repo.Delete(ctx, id, userId); err != nil {
 		return err
 	}
 
