@@ -92,7 +92,21 @@ func (handler *addressHandler) Delete() echo.HandlerFunc {
 			response["message"] = "invalid product id"
 		}
 
-		if err := handler.service.Delete(c.Request().Context(), uint(id)); err != nil {
+		token := c.Get("user")
+		if token == nil {
+			response["message"] = "unauthorized access"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		userId, err := tokens.ExtractToken(handler.jwtConfig.Secret, token.(*jwt.Token))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "unauthorized"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		if err := handler.service.Delete(c.Request().Context(), uint(id), userId); err != nil {
 			c.Logger().Error(err)
 
 			if strings.Contains(err.Error(), "not found") {
