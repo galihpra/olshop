@@ -30,12 +30,12 @@ type Handler interface {
 
 type Service interface {
 	Create(ctx context.Context, data Address) error
-	GetAll(ctx context.Context) ([]Address, error)
-	Delete(ctx context.Context, id uint) error
+	GetAll(ctx context.Context, userId uint) ([]Address, error)
+	Delete(ctx context.Context, id uint, userId uint) error
 }
 
 type Repository interface {
 	Create(ctx context.Context, data Address) error
-	GetAll(ctx context.Context) ([]Address, error)
-	Delete(ctx context.Context, id uint) error
+	GetAll(ctx context.Context, userId uint) ([]Address, error)
+	Delete(ctx context.Context, id uint, userId uint) error
 }

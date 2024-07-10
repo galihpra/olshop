@@ -51,8 +51,8 @@ func (repo *addressRepository) Create(ctx context.Context, data addresses.Addres
 	return nil
 }
 
-func (repo *addressRepository) Delete(ctx context.Context, id uint) error {
-	deleteQuery := repo.db.Delete(&Address{Id: id})
+func (repo *addressRepository) Delete(ctx context.Context, id uint, userId uint) error {
+	deleteQuery := repo.db.Where(&Address{UserId: userId}).Delete(&Address{Id: id})
 	if deleteQuery.Error != nil {
 		return deleteQuery.Error
 	}
@@ -64,10 +64,10 @@ func (repo *addressRepository) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (repo *addressRepository) GetAll(ctx context.Context) ([]addresses.Address, error) {
+func (repo *addressRepository) GetAll(ctx context.Context, userId uint) ([]addresses.Address, error) {
 	var dataAddress []Address
 
-	if err := repo.db.Find(&dataAddress).Error; err != nil {
+	if err := repo.db.Where(&Address{UserId: userId}).Find(&dataAddress).Error; err != nil {
 		return nil, err
 	}
 
