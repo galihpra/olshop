@@ -52,8 +52,8 @@ func (service *addressService) Delete(ctx context.Context, id uint, userId uint)
 	return nil
 }
 
-func (service *addressService) GetAll(ctx context.Context) ([]addresses.Address, error) {
-	result, err := service.repo.GetAll(ctx)
+func (service *addressService) GetAll(ctx context.Context, userId uint) ([]addresses.Address, error) {
+	result, err := service.repo.GetAll(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
