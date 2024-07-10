@@ -64,10 +64,10 @@ func (repo *addressRepository) Delete(ctx context.Context, id uint, userId uint)
 	return nil
 }
 
-func (repo *addressRepository) GetAll(ctx context.Context) ([]addresses.Address, error) {
+func (repo *addressRepository) GetAll(ctx context.Context, userId uint) ([]addresses.Address, error) {
 	var dataAddress []Address
 
-	if err := repo.db.Find(&dataAddress).Error; err != nil {
+	if err := repo.db.Where(&Address{UserId: userId}).Find(&dataAddress).Error; err != nil {
 		return nil, err
 	}
 
