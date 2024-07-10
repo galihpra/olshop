@@ -41,8 +41,7 @@ func (hdl *productHandler) Create() echo.HandlerFunc {
 
 		if err := c.Bind(request); err != nil {
 			c.Logger().Error(err)
-
-			response["message"] = "incorect input data"
+			response["message"] = "incorrect input data"
 			return c.JSON(http.StatusBadRequest, response)
 		}
 
@@ -51,6 +50,9 @@ func (hdl *productHandler) Create() echo.HandlerFunc {
 		parseInput.Price = request.Price
 		parseInput.Discount = request.Discount
 		parseInput.Category.ID = request.CategoryId
+		parseInput.Stock = request.Stock
+		parseInput.Measurement = request.Measurement
+		parseInput.DiscountEnd = request.DiscountEnd
 
 		// Handle file uploads
 		if form, err := c.MultipartForm(); err == nil {
@@ -64,15 +66,34 @@ func (hdl *productHandler) Create() echo.HandlerFunc {
 				}
 				defer src.Close()
 
-				request.Images = append(request.Images, src)
-			}
-		}
-
-		for _, file := range request.Images {
-			if file != nil {
 				parseInput.Images = append(parseInput.Images, products.Image{
-					ImageRaw: file,
+					ImageRaw: src,
 				})
+			}
+
+			for i := 0; i < len(form.File); i++ {
+				colorKey := fmt.Sprintf("varians[%d].color", i)
+				stockKey := fmt.Sprintf("varians[%d].stock", i)
+				varianImageKey := fmt.Sprintf("varians[%d].varian_image", i)
+
+				color := c.FormValue(colorKey)
+				stock, _ := strconv.Atoi(c.FormValue(stockKey))
+				file, _ := c.FormFile(varianImageKey)
+				if file != nil {
+					src, err := file.Open()
+					if err != nil {
+						c.Logger().Error(err)
+						response["message"] = "failed to open varian image file"
+						return c.JSON(http.StatusInternalServerError, response)
+					}
+					defer src.Close()
+
+					parseInput.Varians = append(parseInput.Varians, products.Varian{
+						Color:    color,
+						Stock:    stock,
+						ImageRaw: src,
+					})
+				}
 			}
 		}
 
