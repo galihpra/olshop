@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"olshop/features/products"
 	"olshop/helpers/filters"
 	"time"
@@ -142,8 +141,6 @@ func (srv *productService) Update(ctx context.Context, updateProduct products.Pr
 			return errors.New("validate: stock can't be negative or zero")
 		}
 	}
-
-	fmt.Print("stok: ", updateProduct.Stock)
 
 	if err := srv.repo.Update(ctx, updateProduct, id); err != nil {
 		return err
