@@ -235,6 +235,81 @@ func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*
 
 }
 
-func (repo *productRepository) Update(ctx context.Context, updateProduct products.Product) error {
-	panic("unimplemented")
+func (repo *productRepository) Update(ctx context.Context, updateProduct products.Product, id uint) error {
+	var existingProduct Product
+
+	if err := repo.db.First(&existingProduct, id).Error; err != nil {
+		return err
+	}
+
+	if updateProduct.Name != "" {
+		existingProduct.Name = updateProduct.Name
+	}
+	if updateProduct.Price > 0 {
+		existingProduct.Price = updateProduct.Price
+	}
+	if updateProduct.Discount > 0 && updateProduct.Discount <= 100 {
+		existingProduct.Discount = updateProduct.Discount
+	}
+	if updateProduct.Category.ID != 0 {
+		existingProduct.CategoryId = updateProduct.Category.ID
+	}
+	if updateProduct.Stock > 0 {
+		existingProduct.Stock = updateProduct.Stock
+	}
+	if !updateProduct.DiscountEnd.IsZero() {
+		existingProduct.DiscountEnd = updateProduct.DiscountEnd
+	}
+	if updateProduct.Measurement != "" {
+		existingProduct.Measurement = updateProduct.Measurement
+	}
+	if updateProduct.Description != "" {
+		existingProduct.Description = updateProduct.Description
+	}
+
+	if len(updateProduct.Images) > 0 {
+		var images []Image
+		for i := 0; i < len(updateProduct.Images); i++ {
+			url, err := repo.cloud.Upload(ctx, "products", updateProduct.Images[i].ImageRaw)
+			if err != nil {
+				return err
+			}
+			image := Image{
+				ImageURL: *url,
+			}
+			if i == 0 {
+				existingProduct.ThumbnailUrl = image.ImageURL
+			}
+			images = append(images, image)
+		}
+		existingProduct.Images = images
+	}
+
+	if len(updateProduct.Varians) > 0 {
+		if err := repo.db.Where("product_id = ?", id).Delete(&Varian{}).Error; err != nil {
+			return err
+		}
+
+		var variants []Varian
+		for i := 0; i < len(updateProduct.Varians); i++ {
+			url, err := repo.cloud.Upload(ctx, "varians", updateProduct.Varians[i].ImageRaw)
+			if err != nil {
+				return err
+			}
+			variant := Varian{
+				Color:    updateProduct.Varians[i].Color,
+				Stock:    updateProduct.Varians[i].Stock,
+				ImageURL: *url,
+			}
+			variants = append(variants, variant)
+		}
+		existingProduct.Varians = variants
+
+	}
+
+	if err := repo.db.Save(&existingProduct).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
