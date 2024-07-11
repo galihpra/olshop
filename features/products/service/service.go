@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"olshop/features/products"
 	"olshop/helpers/filters"
 	"time"
@@ -29,7 +30,7 @@ func (srv *productService) Create(ctx context.Context, data products.Product) er
 		return errors.New("validate: category can't be empty")
 	}
 	if data.Discount <= 0 || data.Discount > 100 {
-		return errors.New("validate: discount must be between 10 and 100")
+		return errors.New("validate: discount must be between 1 and 100")
 	}
 	if data.Discount == 0 {
 		return errors.New("validate: discount can't be empty")
@@ -110,6 +111,43 @@ func (srv *productService) GetProductDetail(ctx context.Context, id uint) (*prod
 	return result, nil
 }
 
-func (srv *productService) Update(ctx context.Context, updateProduct products.Product) error {
-	panic("unimplemented")
+func (srv *productService) Update(ctx context.Context, updateProduct products.Product, id uint) error {
+	if id == 0 {
+		return errors.New("validate: invalid product id")
+	}
+	if updateProduct.Price < 0 {
+		return errors.New("validate: price must be greater than zero")
+	}
+	if updateProduct.Discount < 0 || updateProduct.Discount > 100 {
+		return errors.New("validate: discount must be between 1 and 100")
+	}
+	if updateProduct.Discount != 0 {
+		if updateProduct.DiscountEnd.Before(time.Now()) {
+			return errors.New("validate: discount end must be a future date")
+		}
+	}
+
+	var totalVarianStock int
+	for _, varian := range updateProduct.Varians {
+		if varian.Stock < 0 {
+			return errors.New("validate: varian stock can't be negative")
+		}
+		totalVarianStock += varian.Stock
+	}
+
+	if len(updateProduct.Varians) > 0 {
+		updateProduct.Stock = totalVarianStock
+	} else {
+		if updateProduct.Stock < 0 {
+			return errors.New("validate: stock can't be negative or zero")
+		}
+	}
+
+	fmt.Print("stok: ", updateProduct.Stock)
+
+	if err := srv.repo.Update(ctx, updateProduct, id); err != nil {
+		return err
+	}
+
+	return nil
 }
