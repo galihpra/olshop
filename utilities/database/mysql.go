@@ -5,6 +5,7 @@ import (
 	"olshop/config"
 	ar "olshop/features/addresses/repository"
 	pr "olshop/features/products/repository"
+	rr "olshop/features/reviews/repository"
 	ur "olshop/features/users/repository"
 
 	"gorm.io/driver/mysql"
@@ -28,6 +29,7 @@ func MysqlMigrate(db *gorm.DB) error {
 		&pr.Image{},
 		&pr.Varian{},
 		&pr.Product{},
+		&rr.Review{},
 	)
 
 	if err != nil {
