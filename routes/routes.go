@@ -3,6 +3,7 @@ package routes
 import (
 	"olshop/features/addresses"
 	"olshop/features/products"
+	"olshop/features/reviews"
 	"olshop/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -15,12 +16,14 @@ type Routes struct {
 	UserHandler    users.Handler
 	ProductHandler products.Handler
 	AddressHandler addresses.Handler
+	ReviewHandler  reviews.Handler
 }
 
 func (router Routes) InitRouter() {
 	router.UserRouter()
 	router.ProductRouter()
 	router.AddressRouter()
+	router.ReviewRouter()
 }
 
 func (router *Routes) UserRouter() {
@@ -43,4 +46,8 @@ func (router *Routes) AddressRouter() {
 	router.Server.POST("/addresses", router.AddressHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.GET("/addresses", router.AddressHandler.GetAll(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.DELETE("/addresses/:id", router.AddressHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
+}
+
+func (router *Routes) ReviewRouter() {
+	router.Server.POST("/reviews", router.ReviewHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
 }
