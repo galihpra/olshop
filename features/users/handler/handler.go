@@ -109,7 +109,7 @@ func (hdl *userHandler) Login() echo.HandlerFunc {
 func (hdl *userHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var response = make(map[string]any)
-		var request = new(RegisterRequest)
+		var request = new(UpdateRequest)
 
 		token := c.Get("user")
 		if token == nil {
@@ -137,6 +137,7 @@ func (hdl *userHandler) Update() echo.HandlerFunc {
 		parseInput.Email = request.Email
 		parseInput.Password = request.Password
 		parseInput.Username = request.Username
+		parseInput.Phone = request.Phone
 
 		file, _ := c.FormFile("image")
 		if file != nil {
