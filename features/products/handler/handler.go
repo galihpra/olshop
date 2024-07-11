@@ -303,6 +303,94 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 
 func (hdl *productHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		panic("unimplemented")
+		var response = make(map[string]any)
+		var request = new(CreateRequest)
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "invalid product id"
+		}
+
+		if err := c.Bind(request); err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "please fill input correctly"
+			return c.JSON(http.StatusBadRequest, response)
+		}
+
+		var parseInput = new(products.Product)
+		parseInput.Name = request.Name
+		parseInput.Price = request.Price
+		parseInput.Discount = request.Discount
+		parseInput.Description = request.Description
+		parseInput.Category.ID = request.CategoryId
+		parseInput.Stock = request.Stock
+		parseInput.Measurement = request.Measurement
+		parseInput.DiscountEnd = request.DiscountEnd
+
+		// Handle file uploads
+		if form, err := c.MultipartForm(); err == nil {
+			files := form.File["images"]
+			for _, file := range files {
+				src, err := file.Open()
+				if err != nil {
+					c.Logger().Error(err)
+					response["message"] = "failed to open file"
+					return c.JSON(http.StatusInternalServerError, response)
+				}
+				defer src.Close()
+
+				parseInput.Images = append(parseInput.Images, products.Image{
+					ImageRaw: src,
+				})
+			}
+
+			for i := 0; i < len(form.File); i++ {
+				colorKey := fmt.Sprintf("varians[%d].color", i)
+				stockKey := fmt.Sprintf("varians[%d].stock", i)
+				varianImageKey := fmt.Sprintf("varians[%d].varian_image", i)
+
+				color := c.FormValue(colorKey)
+				stock, _ := strconv.Atoi(c.FormValue(stockKey))
+				file, _ := c.FormFile(varianImageKey)
+				if file != nil {
+					src, err := file.Open()
+					if err != nil {
+						c.Logger().Error(err)
+						response["message"] = "failed to open varian image file"
+						return c.JSON(http.StatusInternalServerError, response)
+					}
+					defer src.Close()
+
+					parseInput.Varians = append(parseInput.Varians, products.Varian{
+						Color:    color,
+						Stock:    stock,
+						ImageRaw: src,
+					})
+				}
+			}
+		}
+
+		if err := hdl.service.Update(c.Request().Context(), *parseInput, uint(id)); err != nil {
+			c.Logger().Error(err)
+
+			if strings.Contains(err.Error(), "validate") {
+				response["message"] = strings.ReplaceAll(err.Error(), "validate: ", "")
+				return c.JSON(http.StatusBadRequest, response)
+			}
+
+			if strings.Contains(err.Error(), "unauthorized") {
+				response["message"] = "unauthorized"
+				return c.JSON(http.StatusBadRequest, response)
+			}
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		response["message"] = "update product success"
+		return c.JSON(http.StatusOK, response)
 	}
 }
