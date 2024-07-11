@@ -12,6 +12,7 @@ type CreateRequest struct {
 	CategoryId  uint      `form:"category_id"`
 	Discount    int       `json:"discount" form:"discount"`
 	Stock       int       `json:"stock" form:"stock"`
+	Description string    `json:"description" form:"description"`
 	Measurement string    `json:"measurement" form:"measurement"`
 	DiscountEnd time.Time `json:"discount_end" form:"discount_end"`
 
