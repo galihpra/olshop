@@ -79,6 +79,9 @@ func (service *userService) Update(id uint, updateUser users.User) error {
 	if updateUser.Username == "" {
 		return errors.New("validate: username can't be empty")
 	}
+	if updateUser.Phone == "" {
+		return errors.New("validate: phone can't be empty")
+	}
 	if updateUser.ImageRaw == nil {
 		return errors.New("validate: image can't be empty")
 	}

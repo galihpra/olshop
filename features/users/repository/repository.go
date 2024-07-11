@@ -17,6 +17,7 @@ type User struct {
 	Password  string `gorm:"column:password; type:varchar(72);"`
 	Image     string `gorm:"column:image; type:text;"`
 	Username  string `gorm:"column:username; type:varchar(45);unique"`
+	Phone     string `gorm:"column:phone; type:varchar(15);"`
 	CreatedAt time.Time
 }
 
@@ -70,6 +71,7 @@ func (repo *userRepository) Update(id uint, updateUser users.User) error {
 	model.Email = updateUser.Email
 	model.Password = updateUser.Password
 	model.Username = updateUser.Username
+	model.Phone = updateUser.Phone
 
 	url, err := repo.cloud.Upload(context.Background(), "users", updateUser.ImageRaw)
 	if err != nil {

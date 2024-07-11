@@ -12,6 +12,7 @@ type User struct {
 	Name      string
 	Email     string
 	Password  string
+	Phone     string
 	Image     string
 	ImageRaw  io.Reader
 	Username  string
