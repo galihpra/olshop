@@ -49,6 +49,7 @@ func (hdl *productHandler) Create() echo.HandlerFunc {
 		parseInput.Name = request.Name
 		parseInput.Price = request.Price
 		parseInput.Discount = request.Discount
+		parseInput.Description = request.Description
 		parseInput.Category.ID = request.CategoryId
 		parseInput.Stock = request.Stock
 		parseInput.Measurement = request.Measurement
@@ -273,12 +274,26 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 		data.Description = result.Description
 		data.Discount = result.Discount
 		data.Rating = result.Rating
+		data.Stock = result.Stock
+		data.Measurement = result.Measurement
+		data.DiscountEnd = result.DiscountEnd
 
 		var images []string
 		for _, img := range result.Images {
 			images = append(images, img.ImageURL)
 		}
 		data.Images = images
+
+		var varians []Varianresponse
+		for _, varian := range result.Varians {
+			varians = append(varians, Varianresponse{
+				Id:       varian.ID,
+				Color:    varian.Color,
+				Stock:    varian.Stock,
+				ImageURL: varian.ImageURL,
+			})
+		}
+		data.Varians = varians
 
 		response["data"] = data
 		response["message"] = "get detail product success"
