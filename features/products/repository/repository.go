@@ -209,6 +209,7 @@ func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*
 	result.Rating = data.Rating
 	result.DiscountEnd = data.DiscountEnd
 	result.Measurement = data.Measurement
+	result.Stock = data.Stock
 
 	var images []products.Image
 	for _, img := range data.Images {
