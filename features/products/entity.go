@@ -56,7 +56,7 @@ type Handler interface {
 type Service interface {
 	Create(ctx context.Context, data Product) error
 	GetAll(ctx context.Context, flt filters.Filter) ([]Product, int, error)
-	Update(ctx context.Context, updateProduct Product) error
+	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
 }
@@ -64,7 +64,7 @@ type Service interface {
 type Repository interface {
 	Create(ctx context.Context, data Product) error
 	GetAll(ctx context.Context, flt filters.Filter) ([]Product, int, error)
-	Update(ctx context.Context, updateProduct Product) error
+	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
 }
