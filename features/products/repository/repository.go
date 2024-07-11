@@ -17,9 +17,9 @@ type Product struct {
 	Name         string    `gorm:"column:name; type:varchar(200);"`
 	Price        float64   `gorm:"column:price; type:decimal(16,2);"`
 	ThumbnailUrl string    `gorm:"column:thumbnail; type:text;"`
-	Rating       float32   `gorm:"column:rating; type:decimal(1,1);"`
+	Rating       float32   `gorm:"column:rating; type:float;"`
 	Discount     int       `gorm:"column:discount; type:integer;"`
-	Description  string    `gorm:"column:discount; type:text;"`
+	Description  string    `gorm:"column:description; type:text;"`
 	Stock        int       `gorm:"column:stock; type:integer;"`
 	DiscountEnd  time.Time `gorm:"column:discount_end; type:timestamp;"`
 	Measurement  string    `gorm:"column:measurement; type:varchar(20);"`
@@ -76,6 +76,7 @@ func (repo *productRepository) Create(ctx context.Context, data products.Product
 	inputDB.Stock = data.Stock
 	inputDB.DiscountEnd = data.DiscountEnd
 	inputDB.Measurement = data.Measurement
+	inputDB.Description = data.Description
 
 	for i := 0; i < len(data.Images); i++ {
 		url, err := repo.cloud.Upload(ctx, "products", data.Images[i].ImageRaw)
@@ -195,7 +196,7 @@ func (repo *productRepository) Delete(ctx context.Context, id uint) error {
 func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
 	var data = new(Product)
 
-	if err := repo.db.Preload("Images").Where("id = ?", id).First(data).Error; err != nil {
+	if err := repo.db.Preload("Images").Preload("Varians").Where("id = ?", id).First(data).Error; err != nil {
 		return nil, err
 	}
 
@@ -205,6 +206,9 @@ func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*
 	result.Price = data.Price
 	result.Discount = data.Discount
 	result.Description = data.Description
+	result.Rating = data.Rating
+	result.DiscountEnd = data.DiscountEnd
+	result.Measurement = data.Measurement
 
 	var images []products.Image
 	for _, img := range data.Images {
@@ -214,6 +218,17 @@ func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*
 		})
 	}
 	result.Images = images
+
+	var varians []products.Varian
+	for _, varian := range data.Varians {
+		varians = append(varians, products.Varian{
+			ID:       varian.Id,
+			Color:    varian.Color,
+			ImageURL: varian.ImageURL,
+			Stock:    varian.Stock,
+		})
+	}
+	result.Varians = varians
 
 	return result, nil
 
