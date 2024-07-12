@@ -214,8 +214,18 @@ func (repo *productRepository) Delete(ctx context.Context, id uint) error {
 func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
 	var data = new(Product)
 
-	if err := repo.db.Preload("Images").Preload("Varians").Preload("Reviews.User").Where("id = ?", id).First(data).Error; err != nil {
+	if err := repo.db.Preload("Images").Preload("Varians").Where("id = ?", id).First(data).Error; err != nil {
 		return nil, err
+	}
+
+	if err := repo.db.Where("product_id = ?", id).Order("created_at desc").Limit(2).Find(&data.Reviews).Error; err != nil {
+		return nil, err
+	}
+
+	for i, review := range data.Reviews {
+		if err := repo.db.Where("id = ?", review.UserId).First(&data.Reviews[i].User).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	var result = new(products.Product)
