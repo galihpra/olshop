@@ -24,6 +24,7 @@ type Product struct {
 	Images   []Image
 	Category Category
 	Varians  []Varian
+	Reviews  []Review
 }
 
 type Image struct {
@@ -43,6 +44,20 @@ type Varian struct {
 	Stock    int
 	ImageURL string
 	ImageRaw io.Reader
+}
+
+type Review struct {
+	ID        uint
+	Review    string
+	Rating    float32
+	User      User
+	CreatedAt time.Time
+}
+
+type User struct {
+	ID       uint
+	Username string
+	ImageURL string
 }
 
 type Handler interface {
