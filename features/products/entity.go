@@ -66,6 +66,7 @@ type Handler interface {
 	Update() echo.HandlerFunc
 	GetProductDetail() echo.HandlerFunc
 	Delete() echo.HandlerFunc
+	GetAllReview() echo.HandlerFunc
 }
 
 type Service interface {
@@ -74,6 +75,7 @@ type Service interface {
 	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
+	GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]Review, int, error)
 }
 
 type Repository interface {
@@ -82,4 +84,5 @@ type Repository interface {
 	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
+	GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]Review, int, error)
 }
