@@ -24,6 +24,7 @@ type Product struct {
 	Images   []Image
 	Category Category
 	Varians  []Varian
+	Reviews  []Review
 }
 
 type Image struct {
@@ -45,12 +46,27 @@ type Varian struct {
 	ImageRaw io.Reader
 }
 
+type Review struct {
+	ID        uint
+	Review    string
+	Rating    float32
+	User      User
+	CreatedAt time.Time
+}
+
+type User struct {
+	ID       uint
+	Username string
+	ImageURL string
+}
+
 type Handler interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
 	GetProductDetail() echo.HandlerFunc
 	Delete() echo.HandlerFunc
+	GetAllReview() echo.HandlerFunc
 }
 
 type Service interface {
@@ -59,6 +75,7 @@ type Service interface {
 	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
+	GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]Review, int, error)
 }
 
 type Repository interface {
@@ -67,4 +84,5 @@ type Repository interface {
 	Update(ctx context.Context, updateProduct Product, id uint) error
 	GetProductDetail(ctx context.Context, id uint) (*Product, error)
 	Delete(ctx context.Context, id uint) error
+	GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]Review, int, error)
 }

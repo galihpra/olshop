@@ -40,6 +40,7 @@ func (router *Routes) ProductRouter() {
 	router.Server.GET("/products/:id", router.ProductHandler.GetProductDetail())
 	router.Server.DELETE("/products/:id", router.ProductHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.PUT("/products/:id", router.ProductHandler.Update(), echojwt.JWT([]byte(router.JWTKey)))
+	router.Server.GET("/products/:id/reviews", router.ProductHandler.GetAllReview())
 }
 
 func (router *Routes) AddressRouter() {

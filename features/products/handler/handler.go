@@ -251,8 +251,8 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.Logger().Error(err)
-
 			response["message"] = "invalid product id"
+			return c.JSON(http.StatusBadRequest, response)
 		}
 
 		result, err := hdl.service.GetProductDetail(c.Request().Context(), uint(id))
@@ -269,6 +269,7 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 		}
 
 		var data = new(ProductResponse)
+		data.Id = result.ID
 		data.Name = result.Name
 		data.Price = result.Price
 		data.Description = result.Description
@@ -294,6 +295,22 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 			})
 		}
 		data.Varians = varians
+
+		var reviews []ReviewResponse
+		for _, review := range result.Reviews {
+			reviews = append(reviews, ReviewResponse{
+				ID:        review.ID,
+				Review:    review.Review,
+				Rating:    review.Rating,
+				CreatedAt: review.CreatedAt,
+				User: UserResponse{
+					UserID:   review.User.ID,
+					Username: review.User.Username,
+					ImageURL: review.User.ImageURL,
+				},
+			})
+		}
+		data.Reviews = reviews
 
 		response["data"] = data
 		response["message"] = "get detail product success"
@@ -391,6 +408,71 @@ func (hdl *productHandler) Update() echo.HandlerFunc {
 		}
 
 		response["message"] = "update product success"
+		return c.JSON(http.StatusOK, response)
+	}
+}
+
+func (hdl *productHandler) GetAllReview() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+		var baseUrl = c.Scheme() + "://" + c.Request().Host
+
+		var pagination = new(filters.Pagination)
+		c.Bind(pagination)
+		if pagination.Start != 0 && pagination.Limit == 0 {
+			pagination.Limit = 5
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Logger().Error(err)
+			response["message"] = "invalid product id"
+			return c.JSON(http.StatusBadRequest, response)
+		}
+
+		result, totalData, err := hdl.service.GetAllReview(context.Background(), uint(id), filters.Filter{Pagination: *pagination})
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		var reviews []ReviewResponse
+		for _, review := range result {
+			reviews = append(reviews, ReviewResponse{
+				ID:        review.ID,
+				Review:    review.Review,
+				Rating:    review.Rating,
+				CreatedAt: review.CreatedAt,
+				User: UserResponse{
+					UserID:   review.User.ID,
+					Username: review.User.Username,
+					ImageURL: review.User.ImageURL,
+				},
+			})
+		}
+		response["data"] = reviews
+
+		if pagination.Limit != 0 {
+			var paginationResponse = make(map[string]any)
+			if pagination.Start >= pagination.Limit {
+				prev := fmt.Sprintf("%s%s?start=%d&limit=%d", baseUrl, c.Path(), pagination.Start-pagination.Limit, pagination.Limit)
+				paginationResponse["prev"] = strings.Replace(prev, ":id", strconv.Itoa(id), 1)
+			} else {
+				paginationResponse["prev"] = nil
+			}
+
+			if totalData > pagination.Start+pagination.Limit {
+				next := fmt.Sprintf("%s%s?start=%d&limit=%d", baseUrl, c.Path(), pagination.Start+pagination.Limit, pagination.Limit)
+				paginationResponse["next"] = strings.Replace(next, ":id", strconv.Itoa(id), 1)
+			} else {
+				paginationResponse["next"] = nil
+			}
+			response["pagination"] = paginationResponse
+		}
+
+		response["message"] = "get all review success"
 		return c.JSON(http.StatusOK, response)
 	}
 }
