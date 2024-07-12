@@ -148,3 +148,12 @@ func (srv *productService) Update(ctx context.Context, updateProduct products.Pr
 
 	return nil
 }
+
+func (srv *productService) GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]products.Review, int, error) {
+	result, totalData, err := srv.repo.GetAllReview(ctx, id, flt)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return result, totalData, nil
+}
