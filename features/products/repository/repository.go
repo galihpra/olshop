@@ -29,6 +29,7 @@ type Product struct {
 	CategoryId uint     `gorm:"column:category_id"`
 	Category   Category `gorm:"foreignKey:CategoryId;references:Id"`
 	Varians    []Varian `gorm:"constraint:OnDelete:CASCADE;"`
+	Reviews    []Review
 }
 
 type Image struct {
@@ -53,6 +54,23 @@ type Varian struct {
 
 	ImageURL string    `gorm:"column:image_url; type:text"`
 	ImageRaw io.Reader `gorm:"-"`
+}
+
+type Review struct {
+	Id        uint      `gorm:"column:id; primaryKey;"`
+	ProductId uint      `gorm:"column:product_id;"`
+	Product   Product   `gorm:"foreignKey:ProductId;references:Id;constraint:OnDelete:CASCADE;"`
+	UserId    uint      `gorm:"column:user_id;"`
+	User      User      `gorm:"foreignKey:UserId;references:Id"`
+	Review    string    `gorm:"column:review; type:text"`
+	Rating    float32   `gorm:"column:rating; type:float"`
+	CreatedAt time.Time `gorm:"column:created_at; type:timestamp"`
+}
+
+type User struct {
+	Id       uint   `gorm:"column:id; primaryKey;"`
+	Username string `gorm:"column:username; type:varchar(200)"`
+	ImageURL string `gorm:"column:image_url; type:text"`
 }
 
 type productRepository struct {
@@ -196,7 +214,7 @@ func (repo *productRepository) Delete(ctx context.Context, id uint) error {
 func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*products.Product, error) {
 	var data = new(Product)
 
-	if err := repo.db.Preload("Images").Preload("Varians").Where("id = ?", id).First(data).Error; err != nil {
+	if err := repo.db.Preload("Images").Preload("Varians").Preload("Reviews.User").Where("id = ?", id).First(data).Error; err != nil {
 		return nil, err
 	}
 
@@ -231,8 +249,23 @@ func (repo *productRepository) GetProductDetail(ctx context.Context, id uint) (*
 	}
 	result.Varians = varians
 
-	return result, nil
+	var reviews []products.Review
+	for _, review := range data.Reviews {
+		reviews = append(reviews, products.Review{
+			ID:        review.Id,
+			Rating:    review.Rating,
+			Review:    review.Review,
+			CreatedAt: review.CreatedAt,
+			User: products.User{
+				ID:       review.User.Id,
+				Username: review.User.Username,
+				ImageURL: review.User.ImageURL,
+			},
+		})
+	}
+	result.Reviews = reviews
 
+	return result, nil
 }
 
 func (repo *productRepository) Update(ctx context.Context, updateProduct products.Product, id uint) error {
