@@ -17,6 +17,7 @@ type ProductResponse struct {
 	Images    []string `json:"picture,omitempty"`
 
 	Varians []Varianresponse
+	Reviews []ReviewResponse
 }
 
 type Varianresponse struct {
@@ -24,4 +25,19 @@ type Varianresponse struct {
 	Color    string `json:"color,omitempty"`
 	Stock    int    `json:"stock,omitempty"`
 	ImageURL string `json:"image,omitempty"`
+}
+
+type ReviewResponse struct {
+	ID        uint      `json:"id"`
+	Review    string    `json:"text"`
+	Rating    float32   `json:"rating"`
+	CreatedAt time.Time `json:"created_at"`
+
+	User UserResponse `json:"user"`
+}
+
+type UserResponse struct {
+	UserID   uint   `json:"user_id"`
+	Username string `json:"username"`
+	ImageURL string `json:"image"`
 }
