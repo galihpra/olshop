@@ -356,3 +356,47 @@ func (repo *productRepository) Update(ctx context.Context, updateProduct product
 
 	return nil
 }
+
+func (repo *productRepository) GetAllReview(ctx context.Context, id uint, flt filters.Filter) ([]products.Review, int, error) {
+	var dataReview []Review
+	var totalData int64
+
+	qry := repo.db.WithContext(ctx).Model(&Review{}).Order("created_at DESC").Where("product_id = ?", id)
+
+	qry.Count(&totalData)
+
+	if flt.Pagination.Limit != 0 {
+		qry = qry.Limit(flt.Pagination.Limit)
+	}
+
+	if flt.Pagination.Start != 0 {
+		qry = qry.Offset(flt.Pagination.Start)
+	}
+
+	if err := qry.Find(&dataReview).Error; err != nil {
+		return nil, 0, err
+	}
+
+	for i, review := range dataReview {
+		if err := repo.db.Where("id = ?", review.UserId).First(&dataReview[i].User).Error; err != nil {
+			return nil, 0, err
+		}
+	}
+
+	var result []products.Review
+	for _, review := range dataReview {
+		result = append(result, products.Review{
+			ID:        review.Id,
+			Rating:    review.Rating,
+			Review:    review.Review,
+			CreatedAt: review.CreatedAt,
+			User: products.User{
+				ID:       review.User.Id,
+				Username: review.User.Username,
+				ImageURL: review.User.ImageURL,
+			},
+		})
+	}
+
+	return result, int(totalData), nil
+}
