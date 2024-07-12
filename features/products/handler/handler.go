@@ -251,8 +251,8 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.Logger().Error(err)
-
 			response["message"] = "invalid product id"
+			return c.JSON(http.StatusBadRequest, response)
 		}
 
 		result, err := hdl.service.GetProductDetail(c.Request().Context(), uint(id))
@@ -269,6 +269,7 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 		}
 
 		var data = new(ProductResponse)
+		data.Id = result.ID
 		data.Name = result.Name
 		data.Price = result.Price
 		data.Description = result.Description
@@ -294,6 +295,22 @@ func (hdl *productHandler) GetProductDetail() echo.HandlerFunc {
 			})
 		}
 		data.Varians = varians
+
+		var reviews []ReviewResponse
+		for _, review := range result.Reviews {
+			reviews = append(reviews, ReviewResponse{
+				ID:        review.ID,
+				Review:    review.Review,
+				Rating:    review.Rating,
+				CreatedAt: review.CreatedAt,
+				User: UserResponse{
+					UserID:   review.User.ID,
+					Username: review.User.Username,
+					ImageURL: review.User.ImageURL,
+				},
+			})
+		}
+		data.Reviews = reviews
 
 		response["data"] = data
 		response["message"] = "get detail product success"
