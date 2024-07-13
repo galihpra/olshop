@@ -2,6 +2,7 @@ package routes
 
 import (
 	"olshop/features/addresses"
+	"olshop/features/carts"
 	"olshop/features/products"
 	"olshop/features/reviews"
 	"olshop/features/users"
@@ -17,6 +18,7 @@ type Routes struct {
 	ProductHandler products.Handler
 	AddressHandler addresses.Handler
 	ReviewHandler  reviews.Handler
+	CartHandler    carts.Handler
 }
 
 func (router Routes) InitRouter() {
@@ -24,6 +26,7 @@ func (router Routes) InitRouter() {
 	router.ProductRouter()
 	router.AddressRouter()
 	router.ReviewRouter()
+	router.CartRouter()
 }
 
 func (router *Routes) UserRouter() {
@@ -51,4 +54,7 @@ func (router *Routes) AddressRouter() {
 
 func (router *Routes) ReviewRouter() {
 	router.Server.POST("/reviews", router.ReviewHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
+}
+func (router *Routes) CartRouter() {
+	router.Server.POST("/carts", router.CartHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
 }
