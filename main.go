@@ -5,6 +5,9 @@ import (
 	ah "olshop/features/addresses/handler"
 	ar "olshop/features/addresses/repository"
 	as "olshop/features/addresses/service"
+	ch "olshop/features/carts/handler"
+	cr "olshop/features/carts/repository"
+	cs "olshop/features/carts/service"
 	ph "olshop/features/products/handler"
 	pr "olshop/features/products/repository"
 	ps "olshop/features/products/service"
@@ -70,6 +73,10 @@ func main() {
 	reviewService := rs.NewReviewService(reviewRepository)
 	reviewHandler := rh.NewReviewHandler(reviewService, *jwtConfig)
 
+	cartRepository := cr.NewCartRepository(dbConnection)
+	cartService := cs.NewCartService(cartRepository)
+	cartHandler := ch.NewCartHandler(cartService, *jwtConfig)
+
 	app := echo.New()
 	app.Use(middleware.Recover())
 	app.Use(middleware.CORS())
@@ -81,6 +88,7 @@ func main() {
 		AddressHandler: addressHandler,
 		ProductHandler: productHandler,
 		ReviewHandler:  reviewHandler,
+		CartHandler:    cartHandler,
 	}
 
 	route.InitRouter()
