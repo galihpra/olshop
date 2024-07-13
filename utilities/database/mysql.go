@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"olshop/config"
 	ar "olshop/features/addresses/repository"
+	cr "olshop/features/carts/repository"
 	pr "olshop/features/products/repository"
 	rr "olshop/features/reviews/repository"
 	ur "olshop/features/users/repository"
@@ -30,6 +31,7 @@ func MysqlMigrate(db *gorm.DB) error {
 		&pr.Varian{},
 		&pr.Product{},
 		&rr.Review{},
+		&cr.Cart{},
 	)
 
 	if err != nil {
