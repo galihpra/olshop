@@ -7,6 +7,7 @@ import (
 	cr "olshop/features/carts/repository"
 	pr "olshop/features/products/repository"
 	rr "olshop/features/reviews/repository"
+	tr "olshop/features/transactions/repository"
 	ur "olshop/features/users/repository"
 
 	"gorm.io/driver/mysql"
@@ -32,6 +33,8 @@ func MysqlMigrate(db *gorm.DB) error {
 		&pr.Product{},
 		&rr.Review{},
 		&cr.Cart{},
+		&tr.Transaction{},
+		&tr.TransactionDetail{},
 	)
 
 	if err != nil {

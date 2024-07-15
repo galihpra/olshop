@@ -14,6 +14,9 @@ import (
 	rh "olshop/features/reviews/handler"
 	rr "olshop/features/reviews/repository"
 	rs "olshop/features/reviews/service"
+	th "olshop/features/transactions/handler"
+	tr "olshop/features/transactions/repository"
+	ts "olshop/features/transactions/service"
 	uh "olshop/features/users/handler"
 	ur "olshop/features/users/repository"
 	us "olshop/features/users/service"
@@ -77,18 +80,23 @@ func main() {
 	cartService := cs.NewCartService(cartRepository)
 	cartHandler := ch.NewCartHandler(cartService, *jwtConfig)
 
+	transactionRepository := tr.NewTransactionRepository(dbConnection)
+	transactionService := ts.NewTransactionService(transactionRepository)
+	transactionHandler := th.NewTransactionHandler(transactionService, *jwtConfig)
+
 	app := echo.New()
 	app.Use(middleware.Recover())
 	app.Use(middleware.CORS())
 
 	route := routes.Routes{
-		JWTKey:         jwtConfig.Secret,
-		Server:         app,
-		UserHandler:    userHandler,
-		AddressHandler: addressHandler,
-		ProductHandler: productHandler,
-		ReviewHandler:  reviewHandler,
-		CartHandler:    cartHandler,
+		JWTKey:             jwtConfig.Secret,
+		Server:             app,
+		UserHandler:        userHandler,
+		AddressHandler:     addressHandler,
+		ProductHandler:     productHandler,
+		ReviewHandler:      reviewHandler,
+		CartHandler:        cartHandler,
+		TransactionHandler: transactionHandler,
 	}
 
 	route.InitRouter()
