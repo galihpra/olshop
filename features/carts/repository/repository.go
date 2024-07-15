@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"olshop/features/carts"
 
 	"gorm.io/gorm"
@@ -58,7 +59,16 @@ func (repo *cartRepository) Create(ctx context.Context, newCart carts.Cart, user
 }
 
 func (repo *cartRepository) Delete(ctx context.Context, cartId uint, userId uint) error {
-	panic("unimplemented")
+	deleteQuery := repo.db.Where(&Cart{UserId: userId}).Delete(&Cart{Id: cartId})
+	if deleteQuery.Error != nil {
+		return deleteQuery.Error
+	}
+
+	if deleteQuery.RowsAffected == 0 {
+		return errors.New("not found")
+	}
+
+	return nil
 }
 
 func (repo *cartRepository) GetAll(ctx context.Context, userId uint) ([]carts.Cart, error) {
@@ -66,5 +76,12 @@ func (repo *cartRepository) GetAll(ctx context.Context, userId uint) ([]carts.Ca
 }
 
 func (repo *cartRepository) Update(ctx context.Context, cartId uint, userId uint, updateCart carts.Cart) error {
-	panic("unimplemented")
+	var model = new(Cart)
+	model.Quantity = updateCart.Quantity
+
+	if err := repo.db.Where(&User{Id: userId}).Where(&Cart{Id: cartId}).Updates(model).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
