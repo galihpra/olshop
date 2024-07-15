@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"olshop/features/carts"
+	"olshop/helpers/filters"
 )
 
 type cartService struct {
@@ -43,8 +44,17 @@ func (service *cartService) Delete(ctx context.Context, cartId uint, userId uint
 	return nil
 }
 
-func (service *cartService) GetAll(ctx context.Context, userId uint) ([]carts.Cart, error) {
-	panic("unimplemented")
+func (service *cartService) GetAll(ctx context.Context, flt filters.Filter, userId uint) ([]carts.Cart, int, error) {
+	if userId == 0 {
+		return nil, 0, errors.New("validate: invalid id")
+	}
+
+	result, totalData, err := service.repo.GetAll(ctx, flt, userId)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return result, totalData, nil
 }
 
 func (service *cartService) Update(ctx context.Context, cartId uint, userId uint, updateCart carts.Cart) error {
