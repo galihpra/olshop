@@ -5,6 +5,7 @@ import (
 	"olshop/features/carts"
 	"olshop/features/products"
 	"olshop/features/reviews"
+	"olshop/features/transactions"
 	"olshop/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -12,13 +13,14 @@ import (
 )
 
 type Routes struct {
-	JWTKey         string
-	Server         *echo.Echo
-	UserHandler    users.Handler
-	ProductHandler products.Handler
-	AddressHandler addresses.Handler
-	ReviewHandler  reviews.Handler
-	CartHandler    carts.Handler
+	JWTKey             string
+	Server             *echo.Echo
+	UserHandler        users.Handler
+	ProductHandler     products.Handler
+	AddressHandler     addresses.Handler
+	ReviewHandler      reviews.Handler
+	CartHandler        carts.Handler
+	TransactionHandler transactions.Handler
 }
 
 func (router Routes) InitRouter() {
@@ -27,6 +29,7 @@ func (router Routes) InitRouter() {
 	router.AddressRouter()
 	router.ReviewRouter()
 	router.CartRouter()
+	router.TransactionRouter()
 }
 
 func (router *Routes) UserRouter() {
@@ -60,4 +63,8 @@ func (router *Routes) CartRouter() {
 	router.Server.DELETE("/carts/:id", router.CartHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.PUT("/carts/:id", router.CartHandler.Update(), echojwt.JWT([]byte(router.JWTKey)))
 	router.Server.GET("/carts", router.CartHandler.GetAll(), echojwt.JWT([]byte(router.JWTKey)))
+}
+
+func (router *Routes) TransactionRouter() {
+
 }
