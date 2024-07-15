@@ -32,7 +32,15 @@ func (service *cartService) Create(ctx context.Context, newCart carts.Cart, user
 }
 
 func (service *cartService) Delete(ctx context.Context, cartId uint, userId uint) error {
-	panic("unimplemented")
+	if cartId == 0 {
+		return errors.New("validate: invalid id")
+	}
+
+	if err := service.repo.Delete(ctx, cartId, userId); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *cartService) GetAll(ctx context.Context, userId uint) ([]carts.Cart, error) {
