@@ -57,4 +57,5 @@ func (router *Routes) ReviewRouter() {
 }
 func (router *Routes) CartRouter() {
 	router.Server.POST("/carts", router.CartHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
+	router.Server.DELETE("/carts/:id", router.CartHandler.Delete(), echojwt.JWT([]byte(router.JWTKey)))
 }
