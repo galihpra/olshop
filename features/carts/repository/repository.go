@@ -84,22 +84,16 @@ func (repo *cartRepository) GetAll(ctx context.Context, flt filters.Filter, user
 		Preload("Product").
 		Preload("Varian").
 		Preload("User").
-		Where("user_id = ?", userId).
-		Order("id DESC")
+		Joins("left join products on products.id = carts.product_id").
+		Joins("left join varians on varians.id = carts.varian_id").
+		Where("carts.user_id = ?", userId).
+		Order("carts.id DESC")
 
 	if flt.Search.Keyword != "" {
 		qry = qry.Where("products.name like ?", "%"+flt.Search.Keyword+"%")
 	}
 
 	qry.Count(&totalData)
-
-	if flt.Sort.Column != "" {
-		dir := "asc"
-		if flt.Sort.Direction {
-			dir = "desc"
-		}
-		qry = qry.Order(flt.Sort.Column + " " + dir)
-	}
 
 	if flt.Pagination.Limit != 0 {
 		qry = qry.Limit(flt.Pagination.Limit)
