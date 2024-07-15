@@ -76,5 +76,12 @@ func (repo *cartRepository) GetAll(ctx context.Context, userId uint) ([]carts.Ca
 }
 
 func (repo *cartRepository) Update(ctx context.Context, cartId uint, userId uint, updateCart carts.Cart) error {
-	panic("unimplemented")
+	var model = new(Cart)
+	model.Quantity = updateCart.Quantity
+
+	if err := repo.db.Where(&User{Id: userId}).Where(&Cart{Id: cartId}).Updates(model).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
