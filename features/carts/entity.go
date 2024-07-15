@@ -2,16 +2,35 @@ package carts
 
 import (
 	"context"
+	"olshop/helpers/filters"
 
 	"github.com/labstack/echo/v4"
 )
 
 type Cart struct {
-	ID        uint
+	ID uint
+
 	ProductID uint
-	VarianID  uint
-	UserID    uint
-	Quantity  int16
+	Product   Product
+
+	VarianID uint
+	Varian   Varian
+
+	UserID   uint
+	Quantity int16
+	Subtotal float64
+}
+
+type Product struct {
+	ID        uint
+	Name      string
+	Thumbnail string
+	Price     float64
+}
+
+type Varian struct {
+	ID    uint
+	Color string
 }
 
 type Handler interface {
@@ -23,14 +42,14 @@ type Handler interface {
 
 type Service interface {
 	Create(ctx context.Context, newCart Cart, userId uint) error
-	GetAll(ctx context.Context, userId uint) ([]Cart, error)
+	GetAll(ctx context.Context, flt filters.Filter, userId uint) ([]Cart, int, error)
 	Update(ctx context.Context, cartId uint, userId uint, updateCart Cart) error
 	Delete(ctx context.Context, cartId uint, userId uint) error
 }
 
 type Repository interface {
 	Create(ctx context.Context, newCart Cart, userId uint) error
-	GetAll(ctx context.Context, userId uint) ([]Cart, error)
+	GetAll(ctx context.Context, flt filters.Filter, userId uint) ([]Cart, int, error)
 	Update(ctx context.Context, cartId uint, userId uint, updateCart Cart) error
 	Delete(ctx context.Context, cartId uint, userId uint) error
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"olshop/features/carts"
+	"olshop/helpers/filters"
 
 	"gorm.io/gorm"
 )
@@ -23,11 +24,15 @@ type Cart struct {
 }
 
 type Product struct {
-	Id uint `gorm:"column:id; primaryKey;"`
+	Id        uint    `gorm:"column:id; primaryKey;"`
+	Name      string  `gorm:"column:name; type:varchar(200);"`
+	Price     float64 `gorm:"column:price; type:decimal(16,2);"`
+	Thumbnail string  `gorm:"column:thumbnail; type:text;"`
 }
 
 type Varian struct {
-	Id uint `gorm:"column:id; primaryKey;"`
+	Id    uint   `gorm:"column:id; primaryKey;"`
+	Color string `gorm:"column:color; type:varchar(20);"`
 }
 
 type User struct {
@@ -71,8 +76,63 @@ func (repo *cartRepository) Delete(ctx context.Context, cartId uint, userId uint
 	return nil
 }
 
-func (repo *cartRepository) GetAll(ctx context.Context, userId uint) ([]carts.Cart, error) {
-	panic("unimplemented")
+func (repo *cartRepository) GetAll(ctx context.Context, flt filters.Filter, userId uint) ([]carts.Cart, int, error) {
+	var dataCart []Cart
+	var totalData int64
+
+	qry := repo.db.WithContext(ctx).Model(&Cart{}).
+		Preload("Product").
+		Preload("Varian").
+		Preload("User").
+		Where("user_id = ?", userId).
+		Order("id DESC")
+
+	if flt.Search.Keyword != "" {
+		qry = qry.Where("products.name like ?", "%"+flt.Search.Keyword+"%")
+	}
+
+	qry.Count(&totalData)
+
+	if flt.Sort.Column != "" {
+		dir := "asc"
+		if flt.Sort.Direction {
+			dir = "desc"
+		}
+		qry = qry.Order(flt.Sort.Column + " " + dir)
+	}
+
+	if flt.Pagination.Limit != 0 {
+		qry = qry.Limit(flt.Pagination.Limit)
+	}
+
+	if flt.Pagination.Start != 0 {
+		qry = qry.Offset(flt.Pagination.Start)
+	}
+
+	if err := qry.Find(&dataCart).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var result []carts.Cart
+	for _, cart := range dataCart {
+		result = append(result, carts.Cart{
+			ID:       cart.Id,
+			Quantity: cart.Quantity,
+			Subtotal: cart.Product.Price * float64(cart.Quantity),
+			Product: carts.Product{
+				ID:        cart.Product.Id,
+				Name:      cart.Product.Name,
+				Price:     cart.Product.Price,
+				Thumbnail: cart.Product.Thumbnail,
+			},
+			Varian: carts.Varian{
+				ID:    cart.Varian.Id,
+				Color: cart.Varian.Color,
+			},
+		})
+	}
+
+	return result, int(totalData), nil
 }
 
 func (repo *cartRepository) Update(ctx context.Context, cartId uint, userId uint, updateCart carts.Cart) error {
