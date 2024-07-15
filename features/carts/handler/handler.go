@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"olshop/config"
 	"olshop/features/carts"
+	"olshop/helpers/filters"
 	tokens "olshop/helpers/token"
 	"strconv"
 	"strings"
@@ -126,7 +129,115 @@ func (handler *cartHandler) Delete() echo.HandlerFunc {
 }
 
 func (handler *cartHandler) GetAll() echo.HandlerFunc {
-	panic("unimplemented")
+	return func(c echo.Context) error {
+		var response = make(map[string]any)
+		var baseUrl = c.Scheme() + "://" + c.Request().Host
+
+		token := c.Get("user")
+		if token == nil {
+			response["message"] = "unauthorized access"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		userId, err := tokens.ExtractToken(handler.jwtConfig.Secret, token.(*jwt.Token))
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "unauthorized"
+			return c.JSON(http.StatusUnauthorized, response)
+		}
+
+		var pagination = new(filters.Pagination)
+		c.Bind(pagination)
+		if pagination.Start != 0 && pagination.Limit == 0 {
+			pagination.Limit = 5
+		}
+
+		var search = new(filters.Search)
+		c.Bind(search)
+
+		var sort = new(filters.Sort)
+		c.Bind(sort)
+
+		result, totalData, err := handler.service.GetAll(context.Background(), filters.Filter{Search: *search, Pagination: *pagination, Sort: *sort}, userId)
+		if err != nil {
+			c.Logger().Error(err)
+
+			response["message"] = "internal server error"
+			return c.JSON(http.StatusInternalServerError, response)
+		}
+
+		var data []CartResponse
+		for _, cart := range result {
+			data = append(data, CartResponse{
+				Id:       cart.ID,
+				Quantity: cart.Quantity,
+				Subtotal: cart.Subtotal,
+				Product: ProductResponse{
+					Id:        cart.Product.ID,
+					Name:      cart.Product.Name,
+					Price:     cart.Product.Price,
+					Thumbnail: cart.Product.Thumbnail,
+				},
+				Varian: VarianResponse{
+					Id:    cart.Varian.ID,
+					Color: cart.Varian.Color,
+				},
+			})
+		}
+		response["data"] = data
+
+		if pagination.Limit != 0 {
+			var paginationResponse = make(map[string]any)
+			if pagination.Start >= (pagination.Limit) {
+				prev := fmt.Sprintf("%s%s?start=%d&limit=%d", baseUrl, c.Path(), pagination.Start-pagination.Limit, pagination.Limit)
+
+				if search.Keyword != "" {
+					prev += "&keyword=" + search.Keyword
+				}
+
+				if sort.Column != "" {
+					prev += "&sort=" + sort.Column
+				}
+
+				if sort.Direction {
+					prev += "&dir=true"
+				} else {
+					prev += "&dir=false"
+				}
+
+				paginationResponse["prev"] = prev
+			} else {
+				paginationResponse["prev"] = nil
+			}
+
+			if totalData > pagination.Start+pagination.Limit {
+				next := fmt.Sprintf("%s%s?start=%d&limit=%d", baseUrl, c.Path(), pagination.Start+pagination.Limit, pagination.Limit)
+
+				if search.Keyword != "" {
+					next += "&keyword=" + search.Keyword
+				}
+
+				if sort.Column != "" {
+					next += "&sort=" + sort.Column
+				}
+
+				if sort.Direction {
+					next += "&dir=true"
+				} else {
+					next += "&dir=false"
+				}
+
+				paginationResponse["next"] = next
+			} else {
+				paginationResponse["next"] = nil
+			}
+			response["pagination"] = paginationResponse
+		}
+
+		response["message"] = "get all cart success"
+		return c.JSON(http.StatusOK, response)
+	}
 }
 
 func (handler *cartHandler) Update() echo.HandlerFunc {
