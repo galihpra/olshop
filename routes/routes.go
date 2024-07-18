@@ -66,5 +66,5 @@ func (router *Routes) CartRouter() {
 }
 
 func (router *Routes) TransactionRouter() {
-
+	router.Server.POST("/transactions", router.TransactionHandler.Create(), echojwt.JWT([]byte(router.JWTKey)))
 }
