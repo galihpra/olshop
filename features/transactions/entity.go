@@ -50,9 +50,9 @@ type Handler interface {
 }
 
 type Service interface {
-	Create(ctx context.Context, userId uint, newTransaction Transaction) error
+	Create(ctx context.Context, userId uint, cartIds []uint, newTransaction Transaction) error
 }
 
 type Repository interface {
-	Create(ctx context.Context, userId uint, newTransaction Transaction) error
+	Create(ctx context.Context, userId uint, cartIds []uint, newTransaction Transaction) error
 }
