@@ -24,6 +24,7 @@ import (
 	"olshop/routes"
 	"olshop/utilities/cloudinary"
 	"olshop/utilities/database"
+	"olshop/utilities/payment"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -59,6 +60,13 @@ func main() {
 		panic(err)
 	}
 
+	var midtransConfig = new(config.Midtrans)
+	if err := midtransConfig.LoadFromEnv(); err != nil {
+		panic(err)
+	}
+
+	midtrans := payment.NewMidtrans(*midtransConfig)
+
 	enc := encrypt.New()
 	userRepository := ur.NewUserRepository(dbConnection, cloudinary)
 	userService := us.New(userRepository, enc)
@@ -80,7 +88,7 @@ func main() {
 	cartService := cs.NewCartService(cartRepository)
 	cartHandler := ch.NewCartHandler(cartService, *jwtConfig)
 
-	transactionRepository := tr.NewTransactionRepository(dbConnection)
+	transactionRepository := tr.NewTransactionRepository(dbConnection, midtrans)
 	transactionService := ts.NewTransactionService(transactionRepository)
 	transactionHandler := th.NewTransactionHandler(transactionService, *jwtConfig)
 
