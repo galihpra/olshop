@@ -21,10 +21,14 @@ type Transaction struct {
 	Address   Address
 
 	TransactionDetails []TransactionDetail
+
+	Payment Payment
 }
 
 type User struct {
-	ID uint
+	ID    uint
+	Name  string
+	Email string
 }
 
 type TransactionDetail struct {
@@ -45,6 +49,23 @@ type Product struct {
 	Price float64
 }
 
+type Payment struct {
+	Id            uint
+	Method        string
+	Bank          string
+	VirtualNumber string
+	BillKey       string
+	BillCode      string
+	Status        string
+
+	TransactionCode  int
+	TransactionTotal float64
+
+	CreatedAt time.Time
+	ExpiredAt time.Time
+	PaidAt    time.Time
+}
+
 type Handler interface {
 	Create() echo.HandlerFunc
 }
@@ -54,5 +75,5 @@ type Service interface {
 }
 
 type Repository interface {
-	Create(ctx context.Context, userId uint, cartIds []uint, newTransaction Transaction) error
+	Create(ctx context.Context, userId uint, cartIds []uint, newTransaction Transaction) (*Transaction, error)
 }
