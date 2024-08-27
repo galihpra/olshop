@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"olshop/features/transactions"
+	"olshop/utilities/payment"
 	"strconv"
 	"time"
 
@@ -25,6 +26,21 @@ type Transaction struct {
 	Address   Address `gorm:"foreignKey:AddressId;references:Id"`
 
 	TransactionDetails []TransactionDetail `gorm:"foreignKey:TransactionInvoice;constraint:OnDelete:CASCADE;"`
+
+	Payment Payment `gorm:"embedded;embeddedPrefix:payment_"`
+}
+
+type Payment struct {
+	Method        string `gorm:"column:method; type:varchar(20);"`
+	Bank          string `gorm:"column:bank; type:varchar(20);"`
+	VirtualNumber string `gorm:"column:virtual_number; type:varchar(50);"`
+	BillKey       string `gorm:"column:bill_key; type:varchar(50);"`
+	BillCode      string `gorm:"column:bill_code; type:varchar(50);"`
+	Status        string `gorm:"column:status; type:varchar(20);"`
+
+	CreatedAt time.Time `gorm:"index"`
+	ExpiredAt time.Time `gorm:"nullable"`
+	PaidAt    time.Time `gorm:"default:null;"`
 }
 
 type User struct {
@@ -65,12 +81,14 @@ type Cart struct {
 }
 
 type transactionRepository struct {
-	db *gorm.DB
+	db      *gorm.DB
+	payment payment.Midtrans
 }
 
-func NewTransactionRepository(db *gorm.DB) transactions.Repository {
+func NewTransactionRepository(db *gorm.DB, payment payment.Midtrans) transactions.Repository {
 	return &transactionRepository{
-		db: db,
+		db:      db,
+		payment: payment,
 	}
 }
 
@@ -83,7 +101,7 @@ func generateInvoice(userId uint) int {
 	return invoiceInt
 }
 
-func (repo *transactionRepository) Create(ctx context.Context, userId uint, cartIds []uint, newTransaction transactions.Transaction) error {
+func (repo *transactionRepository) Create(ctx context.Context, userId uint, cartIds []uint, newTransaction transactions.Transaction) (*transactions.Transaction, error) {
 	var dataCart []Cart
 	qry := repo.db.WithContext(ctx).Model(&Cart{}).
 		Preload("Product").
@@ -91,16 +109,16 @@ func (repo *transactionRepository) Create(ctx context.Context, userId uint, cart
 		Where("carts.user_id = ? AND carts.id IN ?", userId, cartIds)
 
 	if err := qry.Find(&dataCart).Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(dataCart) != len(cartIds) {
-		return errors.New("one or more cart IDs are invalid")
+		return nil, errors.New("one or more cart IDs are invalid")
 	}
 
 	tx := repo.db.Begin()
 	if tx.Error != nil {
-		return tx.Error
+		return nil, tx.Error
 	}
 
 	var inputDB = new(Transaction)
@@ -124,18 +142,28 @@ func (repo *transactionRepository) Create(ctx context.Context, userId uint, cart
 		deleteQuery := tx.Where("id = ?", cartItem.Id).Delete(&Cart{})
 		if deleteQuery.Error != nil {
 			tx.Rollback()
-			return deleteQuery.Error
+			return nil, deleteQuery.Error
 		}
 	}
 
+	// Proses pembayaran melalui Midtrans
+	payment, err := repo.payment.NewTransactionPayment(newTransaction)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	var modPayment = new(Payment)
+	inputDB.Payment = *modPayment
+
 	if err := tx.Create(inputDB).Error; err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return payment, nil
 }
