@@ -121,12 +121,14 @@ func (repo *transactionRepository) Create(ctx context.Context, userId uint, cart
 		return nil, tx.Error
 	}
 
-	var inputDB = new(Transaction)
-	inputDB.Invoice = generateInvoice(userId)
-	inputDB.PaymentMethod = newTransaction.PaymentMethod
-	inputDB.AddressId = newTransaction.AddressID
-	inputDB.UserId = userId
-	inputDB.Status = "pending"
+	var inputDB = &Transaction{
+		Invoice:            generateInvoice(userId),
+		PaymentMethod:      newTransaction.PaymentMethod,
+		AddressId:          newTransaction.AddressID,
+		UserId:             userId,
+		Status:             "pending",
+		TransactionDetails: []TransactionDetail{},
+	}
 
 	for _, cartItem := range dataCart {
 		detail := TransactionDetail{
@@ -146,15 +148,20 @@ func (repo *transactionRepository) Create(ctx context.Context, userId uint, cart
 		}
 	}
 
-	// Proses pembayaran melalui Midtrans
 	payment, err := repo.payment.NewTransactionPayment(newTransaction)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	var modPayment = new(Payment)
-	inputDB.Payment = *modPayment
+	inputDB.Payment = Payment{
+		Method:        payment.Method,
+		Bank:          payment.Bank,
+		VirtualNumber: payment.VirtualNumber,
+		BillKey:       payment.BillKey,
+		BillCode:      payment.BillCode,
+		Status:        payment.Status,
+	}
 
 	if err := tx.Create(inputDB).Error; err != nil {
 		tx.Rollback()
@@ -165,5 +172,27 @@ func (repo *transactionRepository) Create(ctx context.Context, userId uint, cart
 		return nil, err
 	}
 
-	return payment, nil
+	// Mapping to transactions.Transaction type if necessary
+	finalTransaction := &transactions.Transaction{
+		Invoice:         inputDB.Invoice,
+		Total:           inputDB.Total,
+		PaymentMethod:   inputDB.PaymentMethod,
+		Status:          inputDB.Status,
+		TransactionDate: inputDB.TransactionDate,
+		UserID:          inputDB.UserId,
+		AddressID:       inputDB.AddressId,
+		Payment: transactions.Payment{
+			Method:        inputDB.Payment.Method,
+			Bank:          inputDB.Payment.Bank,
+			VirtualNumber: inputDB.Payment.VirtualNumber,
+			BillKey:       inputDB.Payment.BillKey,
+			BillCode:      inputDB.Payment.BillCode,
+			Status:        inputDB.Payment.Status,
+			CreatedAt:     inputDB.Payment.CreatedAt,
+			ExpiredAt:     inputDB.Payment.ExpiredAt,
+			PaidAt:        inputDB.Payment.PaidAt,
+		},
+	}
+
+	return finalTransaction, nil
 }
