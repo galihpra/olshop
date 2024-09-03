@@ -56,7 +56,8 @@ func (handler *transactionHandler) Create() echo.HandlerFunc {
 		parseInput.AddressID = request.AddressId
 		parseInput.PaymentMethod = request.PaymentMethod
 
-		if err := handler.service.Create(c.Request().Context(), userId, cartIds, *parseInput); err != nil {
+		result, err := handler.service.Create(c.Request().Context(), userId, cartIds, *parseInput)
+		if err != nil {
 			c.Logger().Error(err)
 			if strings.Contains(err.Error(), "validate") {
 				response["message"] = strings.ReplaceAll(err.Error(), "validate: ", "")
@@ -70,6 +71,17 @@ func (handler *transactionHandler) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, response)
 		}
 
+		var data = new(TransactionResponse)
+		data.Invoice = result.Invoice
+		data.Total = result.Total
+		data.Status = result.Status
+		data.PaymentBank = result.Payment.Bank
+		data.PaymentVirtualNumber = result.Payment.VirtualNumber
+		data.PaymentBillKey = result.Payment.BillKey
+		data.PaymentBillCode = result.Payment.BillCode
+		data.PaymentExpiredAt = &result.Payment.ExpiredAt
+
+		response["data"] = data
 		response["message"] = "create transaction success"
 		return c.JSON(http.StatusCreated, response)
 	}
